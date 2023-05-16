@@ -1,0 +1,16 @@
+.element{
+    background: red;
+    margin:10px;
+    width: 20px;
+    bottom: 20px;
+    display:inline-block;
+    vertical-align:bottom;
+}
+.textContent{
+   position:fixed;
+   top: 230px;
+  
+}
+#contBarChart{
+    height: 150px;
+}
