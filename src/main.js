@@ -12,10 +12,10 @@ inpBarChart.addEventListener("blur", function (ev) {
   }
   for (let i = 0; i < massNumb.length; i++) {
     let powerOfWal = Object.keys(sortVals).indexOf(massNumb[i]) + 1;
-    let div = document.createElement("div");
-    div.classList.add("element");
-    div.style.height = `${powerOfWal * lenBarChart}px`;
-    div.innerHTML = `<p class="textContent">${massNumb[i]}</p>`;
-    contBarChart.appendChild(div);
+    let oneBarElement = document.createElement("div");
+    oneBarElement.classList.add("element");
+    oneBarElement.style.height = `${powerOfWal * lenBarChart}px`;
+    oneBarElement.innerHTML = `<p class="textContent">${massNumb[i]}</p>`;
+    contBarChart.appendChild(oneBarElement);
   }
 });
