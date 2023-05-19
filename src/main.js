@@ -1,20 +1,43 @@
-inpBarChart.addEventListener("blur", function (ev) {
-  contBarChart.innerHTML = "";
-  let sortVals = [];
-  let massNumb = ev.target.value.split(" ").filter(function (val) {
-    if (val !== " " && !isNaN(Number(val) % 2)) return Number(val);
-  });
-  let lenBarChart = Math.round(100 / massNumb.length);
+const buttonCreate = document.querySelector(".createChart");
+const buttonSort = document.querySelector(".sortChart");
 
-  sortVals = massNumb.sort((a, b) => {
+buttonCreate.addEventListener("click", () => buildChart("buildChart"));
+buttonSort.addEventListener("click", () => buildChart("sortVals"));
+
+function buildChart(action) {
+  const input = document.querySelector(".сhartInp");
+  const container = document.querySelector(".colums-container");
+  container.querySelectorAll("div").forEach((colum) => colum.remove());
+
+  const massNumb = input.value.split(" ").filter(function (val) {
+    if (val !== " " && isFinite(Number(val))) {
+      return val;
+    }
+  });
+
+  if (action == "sortVals") {
+    massNumb.sort((a, b) => {
+      return a - b;
+    });
+  }
+  const clone = [...massNumb];
+  const sortMass = clone.sort((a, b) => {
     return a - b;
   });
+  const columSize = 100 / massNumb.length;
+  const sizeColums = {};
+  sortMass.forEach((element, i) => {
+    sizeColums[element] = (i + 1) * columSize;
+  });
 
-  for (let i = 0; i < sortVals.length; i++) {
-    let oneBarElement = document.createElement("div");
-    oneBarElement.classList.add("element");
-    oneBarElement.style.height = `${(i + 1) * lenBarChart}px`;
-    oneBarElement.innerHTML = `<p class="textContent">${sortVals[i]}</p>`;
-    contBarChart.appendChild(oneBarElement);
+  for (let i = 0; i < massNumb.length; i++) {
+    let newColum = document.createElement("div");
+    newColum.classList.add(`box-${i}`);
+    newColum.style.minHeight = `${sizeColums[massNumb[i]]}px`;
+    newColum.style.order = `${i}`;
+    let newSpan = document.createElement("span");
+    newSpan.textContent = massNumb[i];
+    newColum.appendChild(newSpan);
+    container.appendChild(newColum);
   }
-});
+}
