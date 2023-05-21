@@ -1,35 +1,16 @@
-:root{
-    --widthRows:50px;
-}
 .container {
-    position:fixed;
-    padding-bottom: 20px;
-    width: 500px;
-    height:160px;
-    overflow: scroll;
-    justify-content: flex-start;
-    background-color: aquamarine;
-}
-.colums-container {
-    display:flex;
+    display: flex;
+    width: 600px;
+    height: 160px;
     align-items: flex-end;
-    height:120px; 
+    background-color: aquamarine;
+    grid-gap: 2px;
 }
-.colums-container div {
+.colum {
     background-color: red;
-    margin-left:1px;
-    width: var(--widthRows);
-    margin-right: 1px;
-    flex: 0 0 auto;
-    background: red;
-    border:1px solid blue;
-}
-span {
-    position:absolute;
-    bottom:0px;
-    display: block;
+    width: 50px;
+    border: 1px solid blueviolet;
     text-align: center;
-    width: var(--widthRows);
-    margin-bottom:10px;
-    word-wrap: break-word;
+    color: azure;
+    font-weight: bold;
 }
