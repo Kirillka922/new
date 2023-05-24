@@ -1,50 +1,74 @@
 const buttonCreate = document.getElementById("createChart");
 const buttonSort = document.getElementById("sortChart");
+const input = document.querySelector(".сhartInp");
 
-function createChart(mass = undefined) {
-  const input = document.querySelector(".сhartInp");
+function printColumns(array) {
   const container = document.querySelector(".container");
+  container.querySelectorAll(".column").forEach((column) => column.remove());
 
-  container.querySelectorAll(".colum").forEach((colum) => colum.remove());
-  const massNumb = mass ? mass : filterMass(input.value);
-
-  for (let i = 0; i < massNumb.length; i++) {
-    const newColum = document.createElement("div");
-    newColum.classList.add("colum");
-    newColum.style.height = `${
-      (massNumb[i] / Math.max(...massNumb)) * 100 + 20
-    }px`;
-
-    newColum.textContent = massNumb[i];
-    container.appendChild(newColum);
+  for (let i = 0; i < array.length; i++) {
+    const newColumn = document.createElement("div");
+    newColumn.classList.add("column");
+    newColumn.style.height = `${(array[i] / Math.max(...array)) * 100 + 20}px`;
+    newColumn.textContent = array[i];
+    container.appendChild(newColumn);
   }
 }
 
-function sortChart() {
-  const input = document.querySelector(".сhartInp");
-  const result = filterMass(input.value);
-  result.sort((a, b) => {
-    return a - b;
-  });
-  return createChart(result);
+function createChart() {
+  const validArray = getValidArray();
+  printColumns(validArray);
+  if (validArray.length > 1) showBtnSort(true);
 }
 
-function filterMass(mass) {
-  const massNumb = mass.split(" ").filter(function (val) {
+function sortChart() {
+  const sortArray = getValidArray().sort((a, b) => {
+    return a - b;
+  });
+  printColumns(sortArray);
+}
+
+function filterArray(array) {
+  const arrayNumb = array.split(" ").filter(function (val) {
     if (val !== " " && isFinite(Number(val))) {
       return val;
     }
   });
-  return massNumb.map((string) => Number(string));
+  return arrayNumb.map((string) => Number(string));
 }
 
-function unblockBtnSort() {
+function getValidArray() {
+  const input = document.querySelector(".сhartInp");
+  return filterArray(input.value);
+}
+
+function clearHistory() {
+  showBtnCreate(false);
+  showBtnSort(false);
+  printColumns([]);
+}
+
+function validation() {
+  const array = getValidArray();
+  if (array.length > 0) showBtnCreate(true);
+  if (array.length == 0) clearHistory();
+  if (array.length == 1) showBtnSort(false);
+}
+
+function showBtnCreate(isOpen) {
+  const buttonCreate = document.getElementById("createChart");
+  if (isOpen) {
+    buttonCreate.disabled = false;
+  } else {
+    buttonCreate.disabled = true;
+  }
+}
+
+function showBtnSort(isShow) {
   const buttonSort = document.getElementById("sortChart");
-  buttonSort.disabled = false;
+  isShow ? (buttonSort.disabled = false) : (buttonSort.disabled = true);
 }
 
-buttonSort.addEventListener("click", () => sortChart());
-buttonCreate.addEventListener("click", function () {
-  createChart();
-  unblockBtnSort(); //i thought that i can perform this action at the "createChart" function but our function doesn't need to know about the button!
-});
+buttonCreate.addEventListener("click", createChart);
+buttonSort.addEventListener("click", sortChart);
+input.addEventListener("input", validation);
