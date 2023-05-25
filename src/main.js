@@ -16,30 +16,31 @@ function printColumns(array) {
 }
 
 function createChart() {
-  const validArray = getValidArray();
+  const input = document.querySelector(".сhartInp");
+  const validArray = getValidArray(input.value);
+
   printColumns(validArray);
+
   if (validArray.length > 1) showBtnSort(true);
 }
 
-function sortChart() {
-  const sortArray = getValidArray().sort((a, b) => {
+function sortChart(line) {
+  const sortArray = getValidArray(line).sort((a, b) => {
     return a - b;
   });
+
   printColumns(sortArray);
+  showBtnSort(false);
 }
 
-function filterArray(array) {
-  const arrayNumb = array.split(" ").filter(function (val) {
+function getValidArray(value) {
+  const arrayNumb = value.split(" ").filter(function (val) {
     if (val !== " " && isFinite(Number(val))) {
       return val;
     }
   });
-  return arrayNumb.map((string) => Number(string));
-}
 
-function getValidArray() {
-  const input = document.querySelector(".сhartInp");
-  return filterArray(input.value);
+  return arrayNumb.map((string) => Number(string));
 }
 
 function clearHistory() {
@@ -49,7 +50,9 @@ function clearHistory() {
 }
 
 function validation() {
-  const array = getValidArray();
+  const input = document.querySelector(".сhartInp");
+  const array = getValidArray(input.value);
+
   if (array.length > 0) showBtnCreate(true);
   if (array.length == 0) clearHistory();
   if (array.length == 1) showBtnSort(false);
@@ -57,18 +60,16 @@ function validation() {
 
 function showBtnCreate(isOpen) {
   const buttonCreate = document.getElementById("createChart");
-  if (isOpen) {
-    buttonCreate.disabled = false;
-  } else {
-    buttonCreate.disabled = true;
-  }
+  buttonCreate.disabled = !isOpen;
 }
 
 function showBtnSort(isShow) {
   const buttonSort = document.getElementById("sortChart");
-  isShow ? (buttonSort.disabled = false) : (buttonSort.disabled = true);
+  const input = document.querySelector(".сhartInp");
+  buttonSort.disabled = !isShow;
+
+  buttonSort.onclick = sortChart.bind(null, input.value);
 }
 
 buttonCreate.addEventListener("click", createChart);
-buttonSort.addEventListener("click", sortChart);
 input.addEventListener("input", validation);
