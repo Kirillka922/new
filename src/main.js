@@ -20,11 +20,15 @@ function createChart() {
   const validArray = getValidArray(input.value);
 
   printColumns(validArray);
-
   if (validArray.length > 1) showBtnSort(true);
 }
 
-function sortChart(line) {
+function sortChart() {
+  const columnsArray = document.querySelectorAll(".column");
+  let line = "";
+
+  columnsArray.forEach((column) => (line += ` ${column.textContent}`));
+
   const sortArray = getValidArray(line).sort((a, b) => {
     return a - b;
   });
@@ -60,16 +64,16 @@ function validation() {
 
 function showBtnCreate(isOpen) {
   const buttonCreate = document.getElementById("createChart");
+
   buttonCreate.disabled = !isOpen;
 }
 
 function showBtnSort(isShow) {
   const buttonSort = document.getElementById("sortChart");
-  const input = document.querySelector(".сhartInp");
-  buttonSort.disabled = !isShow;
 
-  buttonSort.onclick = sortChart.bind(null, input.value);
+  buttonSort.disabled = !isShow;
 }
 
 buttonCreate.addEventListener("click", createChart);
+buttonSort.addEventListener("click", sortChart);
 input.addEventListener("input", validation);
