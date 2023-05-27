@@ -1,0 +1,16 @@
+.container {
+    display: flex;
+    width: 600px;
+    height: 160px;
+    align-items: flex-end;
+    background-color: aquamarine;
+    grid-gap: 2px;
+}
+.column {
+    background-color: red;
+    width: 50px;
+    border: 1px solid blueviolet;
+    text-align: center;
+    color: azure;
+    font-weight: bold;
+}
