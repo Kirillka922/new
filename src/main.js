@@ -23,22 +23,31 @@ function createChart() {
   if (validArray.length > 1) showBtnSort(true);
 }
 
+function sortColumns(container) {
+  const columns = container.getElementsByClassName("column");
+  const arrayColumns = Array.from(columns);
+  let isChange = false;
+
+  for (let i = 0; i < arrayColumns.length; i++) {
+    const firstColum = arrayColumns[i];
+    const secondColum = arrayColumns[i + 1];
+
+    if (!secondColum) break;
+    const firstNumber = Number(firstColum.textContent);
+    const secondNumber = Number(secondColum.textContent);
+
+    if (firstNumber > secondNumber) {
+      firstColum.before(secondColum);
+      isChange = true;
+    }
+  }
+  if (isChange) sortColumns(container);
+}
+
 function sortChart() {
-  const columnsArray = Array.from(document.getElementsByClassName("column"));
+  const container = document.querySelector(".container");
 
-  const arrayNumb = columnsArray.map((column) => Number(column.textContent));
-  arrayNumb.sort((a, b) => {
-    return a - b;
-  });
-
-  arrayNumb.forEach((number, i) => {
-    const columnsFilter = columnsArray.filter(
-      (column) => column.textContent == number && column.style.order == ""
-    );
-
-    columnsFilter[0].style.order = i;
-  });
-
+  sortColumns(container);
   showBtnSort(false);
 }
 
