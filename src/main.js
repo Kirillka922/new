@@ -24,16 +24,21 @@ function createChart() {
 }
 
 function sortChart() {
-  const columnsArray = document.querySelectorAll(".column");
-  let line = "";
+  const columnsArray = Array.from(document.getElementsByClassName("column"));
 
-  columnsArray.forEach((column) => (line += ` ${column.textContent}`));
-
-  const sortArray = getValidArray(line).sort((a, b) => {
+  const arrayNumb = columnsArray.map((column) => Number(column.textContent));
+  arrayNumb.sort((a, b) => {
     return a - b;
   });
 
-  printColumns(sortArray);
+  arrayNumb.forEach((number, i) => {
+    const columnsFilter = columnsArray.filter(
+      (column) => column.textContent == number && column.style.order == ""
+    );
+
+    columnsFilter[0].style.order = i;
+  });
+
   showBtnSort(false);
 }
 
