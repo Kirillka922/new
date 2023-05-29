@@ -32,11 +32,11 @@ function sortChart() {
   });
 
   arrayNumb.forEach((number, i) => {
-    const columnsFilter = columnsArray.filter(
+    const filterColumns = columnsArray.filter(
       (column) => column.textContent == number && column.style.order == ""
     );
-
-    columnsFilter[0].style.order = i;
+    const firstColumn = filterColumns[0];
+    firstColumn.style.order = i;
   });
 
   showBtnSort(false);
