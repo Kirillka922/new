@@ -1,5 +1,6 @@
 const buttonCreate = document.getElementById("createChart");
-const buttonSort = document.getElementById("sortChart");
+const buttonSortOrder = document.getElementById("sortColumnsOrder");
+const buttonSortDom = document.getElementById("sortColumnsDom");
 const input = document.querySelector(".сhartInp");
 
 function printColumns(array) {
@@ -23,22 +24,67 @@ function createChart() {
   if (validArray.length > 1) showBtnSort(true);
 }
 
-function sortChart() {
-  const columnsArray = Array.from(document.getElementsByClassName("column"));
+function sort(array) {
+  let lengthArray = array.length;
+  let isEndSort = false;
+
+  do {
+    isEndSort = true;
+
+    for (let i = 0; i < lengthArray; i++) {
+      const firstElem = array[i];
+      const secondElem = array[i + 1];
+
+      if (firstElem > secondElem) {
+        const removedElem = array.splice(i, 1);
+        array.splice(i + 1, 0, ...removedElem);
+        isEndSort = false;
+      }
+    }
+    lengthArray--;
+  } while (!isEndSort);
+
+  return array;
+}
+
+function sortChartOrder() {
+  const container = document.querySelector(".container");
+  const columnsArray = Array.from(container.getElementsByClassName("column"));
 
   const arrayNumb = columnsArray.map((column) => Number(column.textContent));
-  arrayNumb.sort((a, b) => {
-    return a - b;
+  const sortArray = sort(arrayNumb);
+
+  sortArray.forEach((number, i) => {
+    for (let column of columnsArray) {
+      if (column.textContent == number && column.style.order == "") {
+        column.style.order = i;
+      }
+    }
   });
 
-  arrayNumb.forEach((number, i) => {
-    const filterColumns = columnsArray.filter(
-      (column) => column.textContent == number && column.style.order == ""
-    );
-    const firstColumn = filterColumns[0];
-    firstColumn.style.order = i;
-  });
+  showBtnSort(false);
+}
 
+function sortChartDom() {
+  const container = document.querySelector(".container");
+  const columns = container.getElementsByClassName("column");
+  const arrayColumns = Array.from(columns);
+  let isChange = false;
+
+  for (let i = 0; i < arrayColumns.length; i++) {
+    const firstColum = arrayColumns[i];
+    const secondColum = arrayColumns[i + 1];
+
+    if (!secondColum) break;
+    const firstNumber = Number(firstColum.textContent);
+    const secondNumber = Number(secondColum.textContent);
+
+    if (firstNumber > secondNumber) {
+      firstColum.before(secondColum);
+      isChange = true;
+    }
+  }
+  if (isChange) sortChartDom();
   showBtnSort(false);
 }
 
@@ -74,11 +120,14 @@ function showBtnCreate(isOpen) {
 }
 
 function showBtnSort(isShow) {
-  const buttonSort = document.getElementById("sortChart");
+  const buttonSortOrder = document.getElementById("sortColumnsOrder");
+  const buttonSortDom = document.getElementById("sortColumnsDom");
 
-  buttonSort.disabled = !isShow;
+  buttonSortDom.disabled = !isShow;
+  buttonSortOrder.disabled = !isShow;
 }
 
 buttonCreate.addEventListener("click", createChart);
-buttonSort.addEventListener("click", sortChart);
+buttonSortOrder.addEventListener("click", sortChartOrder);
+buttonSortDom.addEventListener("click", sortChartDom);
 input.addEventListener("input", validation);
