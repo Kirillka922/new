@@ -24,39 +24,24 @@ function createChart() {
   if (validArray.length > 1) showBtnSort(true);
 }
 
-function sort(arrayForSort) {
-  let length = arrayForSort.length;
-
-  for (let i = 0; i < arrayForSort.length; i++) {
-    for (let j = 1; j < length; j++) {
-      if (arrayForSort[j - 1] > arrayForSort[j]) {
-        let transitionalVal = arrayForSort[j - 1];
-        arrayForSort[j - 1] = arrayForSort[j];
-        arrayForSort[j] = transitionalVal;
+function sort(array) {
+  for (let i = 0; i < array.length; i++) {
+    for (let j = 1; j < array.length - i; j++) {
+      if (array[j - 1] > array[j]) {
+        [array[j], array[j - 1]] = [array[j - 1], array[j]];
       }
     }
-    length--;
   }
-  return arrayForSort;
+  return array;
 }
 
 function sortChartOrder() {
   const container = document.querySelector(".container");
   const columnsArray = container.querySelectorAll(".column");
 
-  const massNumbers = [...columnsArray].map((colum) =>
-    Number(colum.textContent)
-  );
-  const sortArray = sort(massNumbers);
-
-  sortArray.forEach((number, i) => {
-    for (let column of columnsArray) {
-      if (column.textContent == number && column.style.order == "") {
-        column.style.order = i;
-      }
-    }
+  columnsArray.forEach((number, i) => {
+    number.style.order = number.textContent;
   });
-
   showBtnSort(false);
 }
 
