@@ -24,11 +24,10 @@ function createChart() {
   if (validArray.length > 1) showBtnSort(true);
 }
 
-function sort(array) {
-  let arrayForSort = [...array];
+function sort(arrayForSort) {
   let length = arrayForSort.length;
 
-  for (let i = 0; i < array.length; i++) {
+  for (let i = 0; i < arrayForSort.length; i++) {
     for (let j = 1; j < length; j++) {
       if (arrayForSort[j - 1] > arrayForSort[j]) {
         let transitionalVal = arrayForSort[j - 1];
@@ -43,7 +42,7 @@ function sort(array) {
 
 function sortChartOrder() {
   const container = document.querySelector(".container");
-  const columnsArray = container.getElementsByClassName("column");
+  const columnsArray = container.querySelectorAll(".column");
 
   const massNumbers = [...columnsArray].map((colum) =>
     Number(colum.textContent)
