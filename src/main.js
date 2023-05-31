@@ -25,26 +25,18 @@ function createChart() {
 }
 
 function sort(array) {
-  let lengthArray = array.length;
-  let isEndSort = false;
-
-  do {
-    isEndSort = true;
-
-    for (let i = 0; i < lengthArray; i++) {
-      const firstElem = array[i];
-      const secondElem = array[i + 1];
-
-      if (firstElem > secondElem) {
-        const removedElem = array.splice(i, 1);
-        array.splice(i + 1, 0, ...removedElem);
-        isEndSort = false;
+  let arrayForSort = [...array];
+  let length = arrayForSort.length;
+  for (let i = 0; i < array.length; i++) {
+    for (let j = 1; j < length; j++) {
+      if (arrayForSort[j - 1] > arrayForSort[j]) {
+        const removedElem = arrayForSort.splice(j - 1, 1);
+        arrayForSort.splice(j, 0, ...removedElem);
       }
     }
-    lengthArray--;
-  } while (!isEndSort);
-
-  return array;
+    length--;
+  }
+  return arrayForSort;
 }
 
 function sortChartOrder() {
@@ -68,19 +60,17 @@ function sortChartOrder() {
 function sortChartDom() {
   const container = document.querySelector(".container");
   const columns = container.getElementsByClassName("column");
-  const arrayColumns = Array.from(columns);
+
   let isChange = false;
 
-  for (let i = 0; i < arrayColumns.length; i++) {
-    const firstColum = arrayColumns[i];
-    const secondColum = arrayColumns[i + 1];
-
-    if (!secondColum) break;
-    const firstNumber = Number(firstColum.textContent);
-    const secondNumber = Number(secondColum.textContent);
+  for (let i = 1; i < columns.length; i++) {
+    const firstColumn = columns[i - 1];
+    const secondColumn = columns[i];
+    const firstNumber = Number(firstColumn.textContent);
+    const secondNumber = Number(secondColumn.textContent);
 
     if (firstNumber > secondNumber) {
-      firstColum.before(secondColum);
+      firstColumn.before(secondColumn);
       isChange = true;
     }
   }
