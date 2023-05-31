@@ -27,11 +27,13 @@ function createChart() {
 function sort(array) {
   let arrayForSort = [...array];
   let length = arrayForSort.length;
+
   for (let i = 0; i < array.length; i++) {
     for (let j = 1; j < length; j++) {
       if (arrayForSort[j - 1] > arrayForSort[j]) {
-        const removedElem = arrayForSort.splice(j - 1, 1);
-        arrayForSort.splice(j, 0, ...removedElem);
+        let transitionalVal = arrayForSort[j - 1];
+        arrayForSort[j - 1] = arrayForSort[j];
+        arrayForSort[j] = transitionalVal;
       }
     }
     length--;
@@ -41,10 +43,12 @@ function sort(array) {
 
 function sortChartOrder() {
   const container = document.querySelector(".container");
-  const columnsArray = Array.from(container.getElementsByClassName("column"));
+  const columnsArray = container.getElementsByClassName("column");
 
-  const arrayNumb = columnsArray.map((column) => Number(column.textContent));
-  const sortArray = sort(arrayNumb);
+  const massNumbers = [...columnsArray].map((colum) =>
+    Number(colum.textContent)
+  );
+  const sortArray = sort(massNumbers);
 
   sortArray.forEach((number, i) => {
     for (let column of columnsArray) {
