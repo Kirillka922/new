@@ -39,7 +39,7 @@ function sortChartOrder() {
   const container = document.querySelector(".container");
   const columnsArray = container.querySelectorAll(".column");
 
-  columnsArray.forEach((number, i) => {
+  columnsArray.forEach((number) => {
     number.style.order = number.textContent;
   });
   showBtnSort(false);
@@ -49,8 +49,6 @@ function sortChartDom() {
   const container = document.querySelector(".container");
   const columns = container.getElementsByClassName("column");
 
-  let isChange = false;
-
   for (let i = 1; i < columns.length; i++) {
     const firstColumn = columns[i - 1];
     const secondColumn = columns[i];
@@ -59,10 +57,10 @@ function sortChartDom() {
 
     if (firstNumber > secondNumber) {
       firstColumn.before(secondColumn);
-      isChange = true;
+      sortChartDom();
     }
   }
-  if (isChange) sortChartDom();
+
   showBtnSort(false);
 }
 
