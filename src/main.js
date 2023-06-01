@@ -39,8 +39,8 @@ function sortChartOrder() {
   const container = document.querySelector(".container");
   const columnsArray = container.querySelectorAll(".column");
 
-  columnsArray.forEach((number) => {
-    number.style.order = number.textContent;
+  columnsArray.forEach((column) => {
+    column.style.order = column.textContent;
   });
   showBtnSort(false);
 }
@@ -49,18 +49,18 @@ function sortChartDom() {
   const container = document.querySelector(".container");
   const columns = container.getElementsByClassName("column");
 
-  for (let i = 1; i < columns.length; i++) {
-    const firstColumn = columns[i - 1];
-    const secondColumn = columns[i];
-    const firstNumber = Number(firstColumn.textContent);
-    const secondNumber = Number(secondColumn.textContent);
+  for (let i = 0; i < columns.length; i++) {
+    for (let j = 1; j < columns.length - i; j++) {
+      const firstColumn = columns[j - 1];
+      const secondColumn = columns[j];
+      const firstNumber = Number(firstColumn.textContent);
+      const secondNumber = Number(secondColumn.textContent);
 
-    if (firstNumber > secondNumber) {
-      firstColumn.before(secondColumn);
-      sortChartDom();
+      if (firstNumber > secondNumber) {
+        firstColumn.before(secondColumn);
+      }
     }
   }
-
   showBtnSort(false);
 }
 
