@@ -1,5 +1,6 @@
 const buttonCreate = document.getElementById("createChart");
-const buttonSort = document.getElementById("sortChart");
+const buttonSortOrder = document.getElementById("sortColumnsOrder");
+const buttonSortDom = document.getElementById("sortColumnsDom");
 const input = document.querySelector(".сhartInp");
 
 function printColumns(array) {
@@ -23,17 +24,32 @@ function createChart() {
   if (validArray.length > 1) showBtnSort(true);
 }
 
-function sortChart() {
-  const columnsArray = document.querySelectorAll(".column");
-  let line = "";
+function sortChartOrder() {
+  const container = document.querySelector(".container");
+  const columnsArray = container.querySelectorAll(".column");
 
-  columnsArray.forEach((column) => (line += ` ${column.textContent}`));
-
-  const sortArray = getValidArray(line).sort((a, b) => {
-    return a - b;
+  columnsArray.forEach((column) => {
+    column.style.order = column.textContent;
   });
+  showBtnSort(false);
+}
 
-  printColumns(sortArray);
+function sortChartDom() {
+  const container = document.querySelector(".container");
+  const columns = container.getElementsByClassName("column");
+
+  for (let i = 0; i < columns.length; i++) {
+    for (let j = 1; j < columns.length - i; j++) {
+      const firstColumn = columns[j - 1];
+      const secondColumn = columns[j];
+      const firstNumber = Number(firstColumn.textContent);
+      const secondNumber = Number(secondColumn.textContent);
+
+      if (firstNumber > secondNumber) {
+        firstColumn.before(secondColumn);
+      }
+    }
+  }
   showBtnSort(false);
 }
 
@@ -69,11 +85,14 @@ function showBtnCreate(isOpen) {
 }
 
 function showBtnSort(isShow) {
-  const buttonSort = document.getElementById("sortChart");
+  const buttonSortOrder = document.getElementById("sortColumnsOrder");
+  const buttonSortDom = document.getElementById("sortColumnsDom");
 
-  buttonSort.disabled = !isShow;
+  buttonSortDom.disabled = !isShow;
+  buttonSortOrder.disabled = !isShow;
 }
 
 buttonCreate.addEventListener("click", createChart);
-buttonSort.addEventListener("click", sortChart);
+buttonSortOrder.addEventListener("click", sortChartOrder);
+buttonSortDom.addEventListener("click", sortChartDom);
 input.addEventListener("input", validation);
