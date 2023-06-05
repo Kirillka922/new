@@ -5,12 +5,15 @@
     align-items: flex-end;
     background-color: aquamarine;
     grid-gap: 2px;
+    flex-direction: row;
 }
 .column {
     background-color: red;
     width: 50px;
+  justify-content: flex-start;
     border: 1px solid blueviolet;
     text-align: center;
     color: azure;
     font-weight: bold;
+   
 }

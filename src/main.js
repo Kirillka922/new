@@ -23,33 +23,79 @@ function createChart() {
   printColumns(validArray);
   if (validArray.length > 1) showBtnSort(true);
 }
+function createNewTransform(node, length, time) {
+  node.style.transform = `translate(${length}px)`;
+  node.style.transition = `transform ${time}s`;
+}
+
+function countFuturePosit(node) {
+  let numb = Number(node.textContent);
+  const container = document.querySelector(".container");
+  const columnsArray = container.getElementsByClassName("column");
+
+  for (let column of columnsArray) {
+    if (numb > column.style.order) {
+      node = column;
+    }
+  }
+  return node;
+}
 
 function sortChartOrder() {
   const container = document.querySelector(".container");
   const columnsArray = container.querySelectorAll(".column");
 
-  columnsArray.forEach((column) => {
+  for (let column of columnsArray) {
+    let lastNode = countFuturePosit(column);
+    let newPosition = lastNode.getBoundingClientRect().left;
+    let lastPosition = column.getBoundingClientRect().left;
+
+    createNewTransform(column, -newPosition - lastPosition, 0);
+
+    lastPosition = column.getBoundingClientRect().left;
+    createNewTransform(column, newPosition + lastPosition, 1);
+
     column.style.order = column.textContent;
-  });
+  }
+
   showBtnSort(false);
 }
-
-function sortChartDom() {
+function changePositionDom() {
   const container = document.querySelector(".container");
   const columns = container.getElementsByClassName("column");
 
-  for (let i = 0; i < columns.length; i++) {
-    for (let j = 1; j < columns.length - i; j++) {
-      const firstColumn = columns[j - 1];
-      const secondColumn = columns[j];
-      const firstNumber = Number(firstColumn.textContent);
-      const secondNumber = Number(secondColumn.textContent);
+  for (let j = 1; j < columns.length; j++) {
+    const firstColumn = columns[j - 1];
+    const secondColumn = columns[j];
+    const firstNumber = Number(firstColumn.textContent);
+    const secondNumber = Number(secondColumn.textContent);
 
-      if (firstNumber > secondNumber) {
-        firstColumn.before(secondColumn);
-      }
+    if (firstNumber > secondNumber) {
+      let startFirst = firstColumn.getBoundingClientRect().left;
+      let startSecond = secondColumn.getBoundingClientRect().left;
+      firstColumn.before(secondColumn);
+      const finistFirst = firstColumn.getBoundingClientRect().left;
+      const finishSecond = secondColumn.getBoundingClientRect().left;
+
+      createNewTransform(firstColumn, -startSecond + startFirst, 0);
+      createNewTransform(secondColumn, startSecond - startFirst, 0);
+
+      startFirst = firstColumn.getBoundingClientRect().left;
+      startSecond = secondColumn.getBoundingClientRect().left;
+
+      createNewTransform(firstColumn, finistFirst - startSecond, 1);
+      createNewTransform(secondColumn, finishSecond - finishSecond, 1);
+
+      return true;
     }
   }
+  return false;
+}
+function sortChartDom() {
+  const timer = setInterval(function () {
+    if (!changePositionDom()) clearInterval(timer);
+  }, 1000);
+
   showBtnSort(false);
 }
 
