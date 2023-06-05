@@ -29,7 +29,7 @@ function createNewTransform(node, length, time) {
 }
 
 function countFuturePosit(node) {
-  let numb = Number(node.textContent);
+  const numb = Number(node.textContent);
   const container = document.querySelector(".container");
   const columnsArray = container.getElementsByClassName("column");
 
@@ -46,8 +46,8 @@ function sortChartOrder() {
   const columnsArray = container.querySelectorAll(".column");
 
   for (let column of columnsArray) {
-    let lastNode = countFuturePosit(column);
-    let newPosition = lastNode.getBoundingClientRect().left;
+    const lastNode = countFuturePosit(column);
+    const newPosition = lastNode.getBoundingClientRect().left;
     let lastPosition = column.getBoundingClientRect().left;
 
     createNewTransform(column, -newPosition - lastPosition, 0);
@@ -77,7 +77,7 @@ function changePositionDom() {
       const finistFirst = firstColumn.getBoundingClientRect().left;
       const finishSecond = secondColumn.getBoundingClientRect().left;
 
-      createNewTransform(firstColumn, -startSecond + startFirst, 0);
+      createNewTransform(firstColumn, startFirst - startSecond, 0);
       createNewTransform(secondColumn, startSecond - startFirst, 0);
 
       startFirst = firstColumn.getBoundingClientRect().left;
