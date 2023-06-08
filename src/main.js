@@ -1,5 +1,4 @@
 const buttonCreate = document.getElementById("createChart");
-const buttonSortOrder = document.getElementById("sortColumnsOrder");
 const buttonSortDom = document.getElementById("sortColumnsDom");
 const input = document.querySelector(".сhartInp");
 
@@ -10,6 +9,7 @@ function printColumns(array) {
   for (let i = 0; i < array.length; i++) {
     const newColumn = document.createElement("div");
     newColumn.classList.add("column");
+    newColumn.style.left = `${50 * i + 8 + 5 * i}px`;
     newColumn.style.height = `${(array[i] / Math.max(...array)) * 100 + 20}px`;
     newColumn.textContent = array[i];
     container.appendChild(newColumn);
@@ -17,84 +17,97 @@ function printColumns(array) {
 }
 
 function createChart() {
+  const columns = getColumns();
+  if (columns.length !== 0) {
+    if (isSortAttrib()) return;
+  }
   const input = document.querySelector(".сhartInp");
   const validArray = getValidArray(input.value);
 
   printColumns(validArray);
   if (validArray.length > 1) showBtnSort(true);
-}
-function createNewTransform(node, length, time) {
-  node.style.transform = `translate(${length}px)`;
-  node.style.transition = `transform ${time}s`;
+  showBtnCreate(false);
 }
 
-function countFuturePosit(node) {
-  const numb = Number(node.textContent);
+function replacementCord(firstColumn, secondColumn) {
+  const firstCord = firstColumn.getBoundingClientRect().left;
+  const secondCord = secondColumn.getBoundingClientRect().left;
+  [firstColumn.style.left, secondColumn.style.left] = [
+    `${secondCord}px`,
+    `${firstCord}px`,
+  ];
+}
+
+function getColumns() {
   const container = document.querySelector(".container");
-  const columnsArray = container.getElementsByClassName("column");
-
-  for (let column of columnsArray) {
-    if (numb > column.style.order) {
-      node = column;
-    }
-  }
-  return node;
+  return container.querySelectorAll(".column");
 }
 
-function sortChartOrder() {
-  const container = document.querySelector(".container");
-  const columnsArray = container.querySelectorAll(".column");
+function getColumsWithSort() {
+  const columns = getColumns();
 
-  for (let column of columnsArray) {
-    const lastNode = countFuturePosit(column);
-    const newPosition = lastNode.getBoundingClientRect().left;
-    let lastPosition = column.getBoundingClientRect().left;
-
-    createNewTransform(column, -newPosition - lastPosition, 0);
-
-    lastPosition = column.getBoundingClientRect().left;
-    createNewTransform(column, newPosition + lastPosition, 1);
-
-    column.style.order = column.textContent;
-  }
-
-  showBtnSort(false);
+  let columnsArray = Array.from(columns);
+  columnsArray = columnsArray.map((column) => [
+    column,
+    column.getBoundingClientRect().left,
+  ]);
+  columnsArray.sort(function (a, b) {
+    return a[1] - b[1];
+  });
+  return columnsArray;
 }
-function changePositionDom() {
-  const container = document.querySelector(".container");
-  const columns = container.getElementsByClassName("column");
 
-  for (let j = 1; j < columns.length; j++) {
-    const firstColumn = columns[j - 1];
-    const secondColumn = columns[j];
-    const firstNumber = Number(firstColumn.textContent);
-    const secondNumber = Number(secondColumn.textContent);
-
-    if (firstNumber > secondNumber) {
-      let startFirst = firstColumn.getBoundingClientRect().left;
-      let startSecond = secondColumn.getBoundingClientRect().left;
-      firstColumn.before(secondColumn);
-      const finistFirst = firstColumn.getBoundingClientRect().left;
-      const finishSecond = secondColumn.getBoundingClientRect().left;
-
-      createNewTransform(firstColumn, startFirst - startSecond, 0);
-      createNewTransform(secondColumn, startSecond - startFirst, 0);
-
-      startFirst = firstColumn.getBoundingClientRect().left;
-      startSecond = secondColumn.getBoundingClientRect().left;
-
-      createNewTransform(firstColumn, finistFirst - startSecond, 1);
-      createNewTransform(secondColumn, finishSecond - finishSecond, 1);
-
-      return true;
-    }
+function isSortAttrib() {
+  const columns = getColumns();
+  for (let i = 0; i < columns.length; i++) {
+    if (columns[i].hasAttribute("sort")) return true;
   }
   return false;
 }
+
+function sortingElements(position, cycleNumber) {
+  const columnsArray = getColumsWithSort();
+
+  if (cycleNumber > columnsArray.length - 1) {
+    const columns = getColumns();
+    for (let i = 0; i < columns.length; i++) {
+      columns[i].removeAttribute("sort");
+    }
+    showBtnCreate(true);
+  }
+
+  if (cycleNumber > columnsArray.length - 1) return false;
+
+  const firstColumn = columnsArray[position - 1][0];
+  const secondColumn = columnsArray[position][0];
+  const firstNumber = Number(firstColumn.textContent);
+  const secondNumber = Number(secondColumn.textContent);
+
+  position++;
+  const lengthRow = columnsArray.length - cycleNumber - 1;
+  if (position > lengthRow) {
+    position = 1;
+    cycleNumber++;
+  }
+
+  if (firstNumber > secondNumber) {
+    replacementCord(firstColumn, secondColumn);
+
+    setTimeout(() => sortingElements(position, cycleNumber), 2000);
+  } else {
+    sortingElements(position, cycleNumber);
+  }
+}
+
 function sortChartDom() {
-  const timer = setInterval(function () {
-    if (!changePositionDom()) clearInterval(timer);
-  }, 1000);
+  if (isSortAttrib()) return;
+  const columns = getColumns();
+  for (let i = 0; i < columns.length; i++) {
+    columns[i].setAttribute("sort", "true");
+  }
+  const iterationNumb = 1;
+  const cycleNumber = 0;
+  sortingElements(iterationNumb, cycleNumber);
 
   showBtnSort(false);
 }
@@ -131,14 +144,11 @@ function showBtnCreate(isOpen) {
 }
 
 function showBtnSort(isShow) {
-  const buttonSortOrder = document.getElementById("sortColumnsOrder");
   const buttonSortDom = document.getElementById("sortColumnsDom");
 
   buttonSortDom.disabled = !isShow;
-  buttonSortOrder.disabled = !isShow;
 }
 
 buttonCreate.addEventListener("click", createChart);
-buttonSortOrder.addEventListener("click", sortChartOrder);
 buttonSortDom.addEventListener("click", sortChartDom);
 input.addEventListener("input", validation);
