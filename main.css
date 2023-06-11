@@ -9,10 +9,11 @@
     position: absolute;
     background-color: red;
     width: 50px;
-    border: 1px solid blueviolet;
+    border: 1px solid aquamarine;
     text-align: center;
     color: azure;
     font-weight: bold;
     transition: 500ms;
     transition-timing-function: ease;
+
 }
