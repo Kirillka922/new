@@ -23,14 +23,12 @@ function createChart() {
   const columns = getColumns();
 
   if (columns.length !== 0) {
-    if (compareNewArray()) return;
     clearHistory();
   }
   const validArray = getValidArray();
 
   printColumns(validArray);
   if (validArray.length > 1) showBtnSort(true);
-  showBtnCreate(false);
 }
 
 function sortChartDom() {
@@ -50,6 +48,7 @@ function sortingElements(position, cycleNumber) {
   const columnsArray = Array.from(getColumns());
 
   function runSorting() {
+    console.log("hi");
     if (!checSortAttrib()) {
       clearInterval(seInterv);
       return;
@@ -139,7 +138,6 @@ function getValidArray() {
 }
 
 function clearHistory() {
-  showBtnCreate(false);
   showBtnSort(false);
   printColumns([]);
 }
