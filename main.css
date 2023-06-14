@@ -5,15 +5,17 @@
     align-items: flex-end;
     background-color: aquamarine;
 }
+
 .column {
-    position: absolute;
-    background-color: red;
+    position: absolute; 
     width: 50px;
-    border: 1px solid aquamarine;
     text-align: center;
     color: azure;
     font-weight: bold;
-    transition: 500ms;
+    transition: left 500ms;
     transition-timing-function: ease;
-
+    background-color: red;
+}
+.columnSort{
+    background-color: blue !important;
 }

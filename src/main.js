@@ -14,8 +14,9 @@ function printColumns(array) {
     newColumn.textContent = array[i];
     container.appendChild(newColumn);
     const leftForColumn = newColumn.offsetWidth * i;
-    const identForColumn = (1 + i) * 5;
-    newColumn.style.left = `${leftForColumn + identForColumn}px`;
+    const staticIndent = 6;
+    const indentForColumn = (1 + i) * staticIndent;
+    newColumn.style.left = `${leftForColumn + indentForColumn}px`;
   }
 }
 
@@ -32,24 +33,23 @@ function createChart() {
 }
 
 function sortChartDom() {
-  if (checSortAttrib()) return;
+  if (checkSortAttrib()) return;
   setSortAttrib();
-
-  const iterationNumb = 0;
-  const cycleNumber = 0;
-  sortingElements(iterationNumb, cycleNumber);
+  sortChart();
 
   showBtnSort(false);
 }
 
-function sortingElements(position, cycleNumber) {
+function sortChart() {
+  let position = 0;
+  let cycleNumber = 1; //it is easier to start with a number one because cycle number can't be 0
+  //in opposite case we should correct a cycle number later
   let seInterv = setInterval(() => runSorting(), 1000);
 
-  const columnsArray = Array.from(getColumns());
+  let columnsArray = Array.from(getColumns());
 
   function runSorting() {
-    console.log("hi");
-    if (!checSortAttrib()) {
+    if (!checkSortAttrib()) {
       clearInterval(seInterv);
       return;
     }
@@ -58,33 +58,53 @@ function sortingElements(position, cycleNumber) {
       removeSortAttribute();
       clearInterval(seInterv);
       showBtnCreate(true);
+      paintNextElements([]);
 
       return false;
     }
-
     const firstColumn = columnsArray[position];
     const secondColumn = columnsArray[position + 1];
+    paintNextElements(firstColumn, secondColumn);
+
     const firstNumber = Number(firstColumn.textContent); //we need to get numbers inside of columns for check
     const secondNumber = Number(secondColumn.textContent);
 
     if (firstNumber > secondNumber) {
-      replacementColumns(firstColumn, secondColumn);
-      [columnsArray[position], columnsArray[position + 1]] = [
-        columnsArray[position + 1],
-        columnsArray[position],
-      ];
+      columnsArray = replacementColumns(columnsArray, position);
     }
     position++;
-    const lengthRow = columnsArray.length - 1 - cycleNumber - 1;
+    const lengthArray = columnsArray.length - 1;
+    const lastNumberForSort = lengthArray - cycleNumber;
 
-    if (position > lengthRow) {
+    if (position > lastNumberForSort) {
       position = 0;
       cycleNumber++;
     }
   }
 }
 
-function replacementColumns(firstColumn, secondColumn) {
+function paintNextElements(...arguments) {
+  const allColumns = getColumns();
+  allColumns.forEach((column) => {
+    column.classList.remove("columnSort");
+  });
+
+  if (arguments.length > 1) {
+    arguments.forEach((column) => {
+      column.classList.add("columnSort");
+    });
+  }
+}
+
+function replacementColumns(columnsArray, position) {
+  const firstColumn = columnsArray[position];
+  const secondColumn = columnsArray[position + 1];
+
+  [columnsArray[position], columnsArray[position + 1]] = [
+    columnsArray[position + 1],
+    columnsArray[position],
+  ];
+
   const firstCord =
     firstColumn.getBoundingClientRect().left + window.pageXOffset; //if we will have a long row of columns we need to exclude scroll
   const secondCord =
@@ -93,14 +113,8 @@ function replacementColumns(firstColumn, secondColumn) {
     `${secondCord}px`,
     `${firstCord}px`,
   ];
-}
 
-function compareNewArray() {
-  const massVals = [];
-  getColumns().forEach((column, i) => {
-    massVals[i] = column.textContent;
-  });
-  return massVals.toString() == getValidArray().toString();
+  return columnsArray;
 }
 
 function getColumns() {
@@ -108,21 +122,20 @@ function getColumns() {
   return container.querySelectorAll(".column");
 }
 
-function checSortAttrib() {
-  const columns = getColumns();
-  if (!columns[0]) return false;
-  if (columns[0].hasAttribute("sort")) return true;
+function checkSortAttrib() {
+  const container = document.querySelector(".container");
+  if (container.hasAttribute("sort")) return true;
   return false;
 }
 
 function setSortAttrib() {
-  const columns = getColumns();
-  columns[0].setAttribute("sort", "true");
+  const container = document.querySelector(".container");
+  container.setAttribute("sort", "true");
 }
 
 function removeSortAttribute() {
-  const columns = getColumns();
-  columns[0].removeAttribute("sort");
+  const container = document.querySelector(".container");
+  container.removeAttribute("sort");
 }
 
 function getValidArray() {
@@ -140,6 +153,7 @@ function getValidArray() {
 function clearHistory() {
   showBtnSort(false);
   printColumns([]);
+  removeSortAttribute();
 }
 
 function validation() {
