@@ -10,12 +10,15 @@ function printColumns(array) {
   for (let i = 0; i < array.length; i++) {
     const newColumn = document.createElement("div");
     newColumn.classList.add("column");
-    newColumn.style.height = `${(array[i] / Math.max(...array)) * 100 + 20}px`;
+    const MINIMALHAIGHT = 20;
+    newColumn.style.height = `${
+      (array[i] / Math.max(...array)) * 100 + MINIMALHAIGHT
+    }px`;
     newColumn.textContent = array[i];
     container.appendChild(newColumn);
     const leftForColumn = newColumn.offsetWidth * i;
-    const staticIndent = 6;
-    const indentForColumn = (1 + i) * staticIndent;
+    const STATICINDENT = 6;
+    const indentForColumn = (1 + i) * STATICINDENT;
     newColumn.style.left = `${leftForColumn + indentForColumn}px`;
   }
 }
@@ -44,30 +47,31 @@ function sortChart() {
   let position = 0;
   let cycleNumber = 1; //it is easier to start with a number one because cycle number can't be 0
   //in opposite case we should correct a cycle number later
-  let seInterv = setInterval(() => runSorting(), 1000);
+  let sortSetInterval = setInterval(() => runSorting(), 1000);
 
   let columnsArray = Array.from(getColumns());
 
   function runSorting() {
     if (!checkSortAttrib()) {
-      clearInterval(seInterv);
+      clearInterval(sortSetInterval);
       return;
     }
 
+    removeColorElem();
+
     if (cycleNumber > columnsArray.length - 1) {
       removeSortAttribute();
-      clearInterval(seInterv);
+      clearInterval(sortSetInterval);
       showBtnCreate(true);
-      paintNextElements([]);
 
       return false;
     }
     const firstColumn = columnsArray[position];
     const secondColumn = columnsArray[position + 1];
-    paintNextElements(firstColumn, secondColumn);
-
     const firstNumber = Number(firstColumn.textContent); //we need to get numbers inside of columns for check
     const secondNumber = Number(secondColumn.textContent);
+
+    paintNextElements(firstColumn, secondColumn);
 
     if (firstNumber > secondNumber) {
       columnsArray = replacementColumns(columnsArray, position);
@@ -80,19 +84,6 @@ function sortChart() {
       position = 0;
       cycleNumber++;
     }
-  }
-}
-
-function paintNextElements(...arguments) {
-  const allColumns = getColumns();
-  allColumns.forEach((column) => {
-    column.classList.remove("columnSort");
-  });
-
-  if (arguments.length > 1) {
-    arguments.forEach((column) => {
-      column.classList.add("columnSort");
-    });
   }
 }
 
@@ -115,6 +106,19 @@ function replacementColumns(columnsArray, position) {
   ];
 
   return columnsArray;
+}
+
+function paintNextElements(firstColumn, secondColumn) {
+  firstColumn.classList.add("columnSort");
+  secondColumn.classList.add("columnSort");
+}
+
+function removeColorElem() {
+  const allColumns = getColumns();
+  allColumns.forEach((column) => {
+    const isClass = column.classList.contains("columnSort");
+    if (isClass) column.classList.remove("columnSort");
+  });
 }
 
 function getColumns() {
