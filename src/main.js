@@ -6,18 +6,17 @@ function printColumns(array) {
   const container = document.querySelector(".container");
 
   container.querySelectorAll(".column").forEach((column) => column.remove());
+  const MINIMUMHAIGHT = 20;
+  const STATICINDENT = 6;
 
   for (let i = 0; i < array.length; i++) {
+    const haightColumn = (array[i] / Math.max(...array)) * 100 + MINIMUMHAIGHT;
     const newColumn = document.createElement("div");
     newColumn.classList.add("column");
-    const MINIMALHAIGHT = 20;
-    newColumn.style.height = `${
-      (array[i] / Math.max(...array)) * 100 + MINIMALHAIGHT
-    }px`;
+    newColumn.style.height = `${haightColumn}px`;
     newColumn.textContent = array[i];
     container.appendChild(newColumn);
     const leftForColumn = newColumn.offsetWidth * i;
-    const STATICINDENT = 6;
     const indentForColumn = (1 + i) * STATICINDENT;
     newColumn.style.left = `${leftForColumn + indentForColumn}px`;
   }
@@ -47,13 +46,13 @@ function sortChart() {
   let position = 0;
   let cycleNumber = 1; //it is easier to start with a number one because cycle number can't be 0
   //in opposite case we should correct a cycle number later
-  let sortSetInterval = setInterval(() => runSorting(), 1000);
+  let sortTimerId = setInterval(() => runSorting(), 1000);
 
   let columnsArray = Array.from(getColumns());
 
   function runSorting() {
     if (!checkSortAttrib()) {
-      clearInterval(sortSetInterval);
+      clearInterval(sortTimerId);
       return;
     }
 
@@ -61,7 +60,7 @@ function sortChart() {
 
     if (cycleNumber > columnsArray.length - 1) {
       removeSortAttribute();
-      clearInterval(sortSetInterval);
+      clearInterval(sortTimerId);
       showBtnCreate(true);
 
       return false;
