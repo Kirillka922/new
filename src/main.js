@@ -36,7 +36,9 @@ function createChart() {
 
 function sortChartDom() {
   if (checkSortAttrib()) return;
-  setSortAttrib();
+
+  const container = document.querySelector(".container");
+  container.setAttribute("sort", "true");
   sortChart();
 
   showBtnSort(false);
@@ -71,7 +73,9 @@ function sortChart() {
     }
 
     if (cycleNumber > columnsArray.length - 1) {
-      removeSortAttribute();
+      const container = document.querySelector(".container");
+
+      container.removeAttribute("sort");
       clearInterval(sortTimerId);
       showBtnCreate(true);
 
@@ -114,27 +118,20 @@ function sortChart() {
 }
 
 function getColumns() {
+  //we have this function because our code was used 2 times
   const container = document.querySelector(".container");
   return container.querySelectorAll(".column");
 }
 
 function checkSortAttrib() {
+  //we have this function because our code was used 2 times
   const container = document.querySelector(".container");
   if (container.hasAttribute("sort")) return true;
   return false;
 }
 
-function setSortAttrib() {
-  const container = document.querySelector(".container");
-  container.setAttribute("sort", "true");
-}
-
-function removeSortAttribute() {
-  const container = document.querySelector(".container");
-  container.removeAttribute("sort");
-}
-
 function getValidArray() {
+  //we have this function because it is a separate entity
   const input = document.querySelector(".сhartInp");
 
   const arrayNumb = input.value.split(" ").filter(function (val) {
