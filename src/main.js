@@ -46,47 +46,32 @@ function sortChartDom() {
 
 function sortChart() {
   let position = 0;
-  let cycleNumber = 1; //it is easier to start with a number one because cycle number can't be 0
+  //it is easier to start with a number one because cycle number can't be 0
   //in opposite case we should correct a cycle number later
+  let cycleNumber = 1;
   const columnsArray = Array.from(getColumns());
 
   function runSorting() {
-    const isNewCycle = position == 0 && cycleNumber > 1;
-    const isNotFirstElem = position > 0;
-    const previousColumn = columnsArray[position - 1];
-    const lastColumnPreviousCycle = columnsArray.length - cycleNumber + 1;
-
-    if (isNotFirstElem) {
-      previousColumn.classList.remove("columnSort"); // we need to remove style after the cycle
-      //because we need hold the color on the element for a 1 second
-    }
-
-    if (isNewCycle) {
-      columnsArray[lastColumnPreviousCycle - 1].classList.remove("columnSort");
-      columnsArray[lastColumnPreviousCycle].classList.remove("columnSort");
-      //after the first cycle we need to remove the color of last elements
-    }
-
     if (!checkSortAttrib()) {
       clearInterval(sortTimerId);
       return;
     }
+    const lengthArray = columnsArray.length - 1;
 
-    if (cycleNumber > columnsArray.length - 1) {
+    if (cycleNumber > lengthArray) {
       const container = document.querySelector(".container");
-
       container.removeAttribute("sort");
       clearInterval(sortTimerId);
       showBtnCreate(true);
-
-      return false;
+      return;
     }
-    const firstColumn = columnsArray[position];
-    const secondColumn = columnsArray[position + 1];
-    const firstNumber = Number(firstColumn.textContent); //we need to get numbers inside of columns for check
-    const secondNumber = Number(secondColumn.textContent);
 
+    const firstColumn = columnsArray[position];
+    const firstNumber = Number(firstColumn.textContent);
     firstColumn.classList.add("columnSort");
+
+    const secondColumn = columnsArray[position + 1];
+    const secondNumber = Number(secondColumn.textContent);
     secondColumn.classList.add("columnSort");
 
     if (firstNumber > secondNumber) {
@@ -94,9 +79,9 @@ function sortChart() {
         columnsArray[position + 1],
         columnsArray[position],
       ];
-
+      //if we will have a long row of columns we need to exclude scroll
       const firstCord =
-        firstColumn.getBoundingClientRect().left + window.pageXOffset; //if we will have a long row of columns we need to exclude scroll
+        firstColumn.getBoundingClientRect().left + window.pageXOffset;
       const secondCord =
         secondColumn.getBoundingClientRect().left + window.pageXOffset;
       [firstColumn.style.left, secondColumn.style.left] = [
@@ -105,8 +90,13 @@ function sortChart() {
       ];
     }
 
+    firstColumn.addEventListener("transitionend", function () {
+      firstColumn.classList.remove("columnSort");
+      secondColumn.classList.remove("columnSort");
+    });
+
     position++;
-    const lengthArray = columnsArray.length - 1;
+
     const lastNumberForSort = lengthArray - cycleNumber;
 
     if (position > lastNumberForSort) {
@@ -114,24 +104,22 @@ function sortChart() {
       cycleNumber++;
     }
   }
-  const sortTimerId = setInterval(() => runSorting(), 1000);
+
+  const sortTimerId = setInterval(() => runSorting(), 1500);
 }
 
 function getColumns() {
-  //we have this function because our code was used 2 times
   const container = document.querySelector(".container");
   return container.querySelectorAll(".column");
 }
 
 function checkSortAttrib() {
-  //we have this function because our code was used 2 times
   const container = document.querySelector(".container");
   if (container.hasAttribute("sort")) return true;
   return false;
 }
 
 function getValidArray() {
-  //we have this function because it is a separate entity
   const input = document.querySelector(".сhartInp");
 
   const arrayNumb = input.value.split(" ").filter(function (val) {
@@ -146,7 +134,8 @@ function getValidArray() {
 function clearHistory() {
   showBtnSort(false);
   printColumns([]);
-  removeSortAttribute();
+  const container = document.querySelector(".container");
+  container.removeAttribute("sort");
 }
 
 function validation() {
