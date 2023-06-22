@@ -99,8 +99,8 @@ function sortChart() {
         );
 
         //if we will have a long row of columns we need to exclude scroll
-        const firstCord = firstColumn.offsetLeft + window.pageXOffset;
-        const secondCord = secondColumn.offsetLeft + window.pageXOffset;
+        const firstCord = firstColumn.offsetLeft;
+        const secondCord = secondColumn.offsetLeft;
         [firstColumn.style.left, secondColumn.style.left] = [
           `${secondCord}px`,
           `${firstCord}px`,
