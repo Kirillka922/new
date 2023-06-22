@@ -1,12 +1,11 @@
-const MINIMUM_HEIGHT = 20;
-const STATIC_INDENT = 6;
 const buttonCreate = document.getElementById("createChart");
 const buttonSortDom = document.getElementById("sortColumnsDom");
 const input = document.querySelector(".сhartInp");
+const MINIMUM_HEIGHT = 20;
+const STATIC_INDENT = 1;
 
 function printColumns(array) {
   const container = document.querySelector(".container");
-
   container.querySelectorAll(".column").forEach((column) => column.remove());
 
   for (let i = 0; i < array.length; i++) {
@@ -67,6 +66,11 @@ function sortChart() {
     }
 
     const firstColumn = columnsArray[position];
+
+    firstColumn.addEventListener("transitionend", replaceElements, {
+      once: true,
+    });
+
     const firstNumber = Number(firstColumn.textContent);
     firstColumn.classList.add("columnSort");
 
@@ -79,21 +83,33 @@ function sortChart() {
         columnsArray[position + 1],
         columnsArray[position],
       ];
-      //if we will have a long row of columns we need to exclude scroll
-      const firstCord =
-        firstColumn.getBoundingClientRect().left + window.pageXOffset;
-      const secondCord =
-        secondColumn.getBoundingClientRect().left + window.pageXOffset;
-      [firstColumn.style.left, secondColumn.style.left] = [
-        `${secondCord}px`,
-        `${firstCord}px`,
-      ];
     }
 
-    firstColumn.addEventListener("transitionend", function () {
-      firstColumn.classList.remove("columnSort");
-      secondColumn.classList.remove("columnSort");
-    });
+    function replaceElements() {
+      if (firstNumber > secondNumber) {
+        firstColumn.addEventListener(
+          "transitionend",
+          function () {
+            firstColumn.classList.remove("columnSort");
+            secondColumn.classList.remove("columnSort");
+          },
+          {
+            once: true,
+          }
+        );
+
+        //if we will have a long row of columns we need to exclude scroll
+        const firstCord = firstColumn.offsetLeft + window.pageXOffset;
+        const secondCord = secondColumn.offsetLeft + window.pageXOffset;
+        [firstColumn.style.left, secondColumn.style.left] = [
+          `${secondCord}px`,
+          `${firstCord}px`,
+        ];
+      } else {
+        firstColumn.classList.remove("columnSort");
+        secondColumn.classList.remove("columnSort");
+      }
+    }
 
     position++;
 
@@ -105,7 +121,7 @@ function sortChart() {
     }
   }
 
-  const sortTimerId = setInterval(() => runSorting(), 1500);
+  const sortTimerId = setInterval(() => runSorting(), 2000);
 }
 
 function getColumns() {
