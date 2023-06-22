@@ -3,6 +3,7 @@ const buttonSortDom = document.getElementById("sortColumnsDom");
 const input = document.querySelector(".сhartInp");
 const MINIMUM_HEIGHT = 20;
 const STATIC_INDENT = 1;
+const SPEED_OF_SORTING = 1500;
 
 function printColumns(array) {
   const container = document.querySelector(".container");
@@ -121,7 +122,7 @@ function sortChart() {
     }
   }
 
-  const sortTimerId = setInterval(() => runSorting(), 2000);
+  const sortTimerId = setInterval(() => runSorting(), SPEED_OF_SORTING);
 }
 
 function getColumns() {
