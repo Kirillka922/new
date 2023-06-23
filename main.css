@@ -1,16 +1,22 @@
 .container {
+    position: relative; 
     display: flex;
     width: 600px;
     height: 160px;
-    align-items: flex-end;
     background-color: aquamarine;
-    grid-gap: 2px;
+    overflow : auto;
 }
 .column {
-    background-color: red;
+    position: absolute; 
     width: 50px;
-    border: 1px solid blueviolet;
     text-align: center;
     color: azure;
     font-weight: bold;
+    background-color: red;
+    transition: left 0.5s ease, background-color 0.5s ease; 
+    border: 1px solid black;
+    align-self: flex-end;
+}
+.columnSort{
+    background: blue;
 }
