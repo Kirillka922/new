@@ -1,69 +1,54 @@
-const buttonCreate = document.getElementById("createChart");
-const buttonSortForward = document.getElementById("sortForward");
-const buttonSortBack = document.getElementById("sortBack");
-const input = document.querySelector(".сhartInp");
 const MINIMUM_HEIGHT = 20;
-const STATIC_INDENT = 1;
-const ANIMATION_INTERVAL = 1000;
+const ANIMATION_INTERVAL = 400;
+const CLICK_INTERVAL = 1000;
 
-function printColumns(array) {
-  const container = document.querySelector(".container");
-  container.querySelectorAll(".column").forEach((column) => column.remove());
-
-  for (let i = 0; i < array.length; i++) {
-    const heightColumn = (array[i] / Math.max(...array)) * 100 + MINIMUM_HEIGHT;
-    const newColumn = document.createElement("div");
-    newColumn.classList.add("column");
-    newColumn.style.height = `${heightColumn}px`;
-    newColumn.textContent = array[i];
-    container.appendChild(newColumn);
-    const leftForColumn = newColumn.offsetWidth * i;
-    const indentForColumn = (1 + i) * STATIC_INDENT;
-    newColumn.style.left = `${leftForColumn + indentForColumn}px`;
-  }
-}
-
-function createChart() {
-  const columns = getColumns();
-
-  if (columns.length !== 0) {
-    clearHistory();
-  }
-  const validArray = getValidArray();
-
-  printColumns(validArray);
-  if (validArray.length > 1) showBtnSort(true);
-  sortChartDom();
-}
-
-function sortChartDom() {
-  let intervalTimerId;
-  buttonSortForward.addEventListener("click", sortForward);
-  buttonSortBack.addEventListener("click", sortChartBack);
+function init() {
+  const buttonCreate = document.getElementById("createChart");
+  const buttonSortForward = document.getElementById("sortForward");
+  const buttonSortBack = document.getElementById("sortBack");
+  const input = document.querySelector(".сhartInp");
   const container = document.querySelector(".container");
 
-  const sortObserverId = new MutationObserver(() => {
-    buttonSortForward.removeEventListener("click", sortForward, false);
-    buttonSortBack.removeEventListener("click", sortChartBack, false);
-    container.removeAttribute("sort");
-    if (intervalTimerId) clearTimeout(intervalTimerId);
-  });
-  sortObserverId.observe(container, { childList: true });
-
+  let intervalTimerId = null;
+  let clickIntervalId = null;
   let position = 0;
   let cycleNumber = 1;
-  const columnsArray = Array.from(getColumns());
-  const arraySortMap = [];
-  let isReplace = true;
+  let columnsArray = [];
+  let arraySortMap = [];
+  let counterClick = 0;
 
-  function sortForward() {
-    if (checkSortAttrib()) return;
+  function printColumns(array) {
+    container.querySelectorAll(".column").forEach((column) => column.remove());
+
+    for (let i = 0; i < array.length; i++) {
+      const heightColumn =
+        (array[i] / Math.max(...array)) * 100 + MINIMUM_HEIGHT;
+      const newColumn = document.createElement("div");
+      newColumn.classList.add("column");
+      newColumn.style.height = `${heightColumn}px`;
+      newColumn.textContent = array[i];
+      container.appendChild(newColumn);
+      const leftForColumn = newColumn.offsetWidth * i;
+      const indentForColumn = 1 + i;
+      newColumn.style.left = `${leftForColumn + indentForColumn}px`;
+    }
+  }
+
+  function createChart() {
+    const columns = container.querySelectorAll(".column");
+    if (columns.length !== 0) {
+      clearHistory();
+    }
+
+    const validArray = getValidArray();
+    printColumns(validArray);
+
+    columnsArray = getColumns();
+    if (validArray.length > 1) showBtnSort(true);
+  }
+
+  function sortChartForward() {
     const columnLength = columnsArray.length - 1;
-
-    if (cycleNumber > columnLength - 1) return;
-
-    const container = document.querySelector(".container");
-    container.setAttribute("sort", "true");
 
     const lastNumberForSort = columnLength - cycleNumber;
     if (position > lastNumberForSort) {
@@ -71,141 +56,184 @@ function sortChartDom() {
       cycleNumber++;
     }
 
-    const firstColumn = columnsArray[position];
-    const secondColumn = columnsArray[position + 1];
-    const firstNumber = Number(firstColumn.textContent);
-    const secondNumber = Number(secondColumn.textContent);
+    const firstColumnArray = columnsArray[position];
+    const secondColumnArray = columnsArray[position + 1];
+    const firstColumn = firstColumnArray[0];
+    const secondColumn = secondColumnArray[0];
+    const firstNumber = Number(firstColumnArray[0].textContent);
+    const secondNumber = Number(secondColumnArray[0].textContent);
 
-    isReplace = firstNumber > secondNumber;
+    const isReplace = firstNumber > secondNumber;
 
     if (isReplace) {
-      [columnsArray[position], columnsArray[position + 1]] = [
-        columnsArray[position + 1],
-        columnsArray[position],
+      //we can't do these moves in replaceElements function because we need change
+      //values without a delay in the synchronized actions
+      [columnsArray[position][0], columnsArray[position + 1][0]] = [
+        secondColumn,
+        firstColumn,
       ];
     }
+    arraySortMap.push(isReplace);
+
     firstColumn.classList.add("columnSort");
     secondColumn.classList.add("columnSort");
 
-    intervalTimerId = setTimeout(() => {
-      replaceElements(firstColumn, secondColumn);
-      arraySortMap.push(isReplace);
-    }, ANIMATION_INTERVAL);
-
+    intervalTimerId = setTimeout(
+      () => replaceElements(firstColumnArray, secondColumnArray, isReplace),
+      ANIMATION_INTERVAL
+    );
     position++;
   }
 
   function sortChartBack() {
-    if (checkSortAttrib()) return;
-
-    if (position === 0 && cycleNumber === 1) return;
-
-    const container = document.querySelector(".container");
-    container.setAttribute("sort", "true");
-
     const lastNumberForSort = columnsArray.length + 1 - cycleNumber;
     if (position === 0) {
       position = lastNumberForSort;
       cycleNumber--;
     }
 
-    const firstColumn = columnsArray[position];
-    const secondColumn = columnsArray[position - 1];
-
-    isReplace = arraySortMap[arraySortMap.length - 1];
+    const firstColumnArray = columnsArray[position];
+    const secondColumnArray = columnsArray[position - 1];
+    const firstColumn = firstColumnArray[0];
+    const secondColumn = secondColumnArray[0];
+    const isReplace = arraySortMap[arraySortMap.length - 1];
 
     if (isReplace) {
-      [columnsArray[position], columnsArray[position - 1]] = [
+      [columnsArray[position][0], columnsArray[position - 1][0]] = [
         secondColumn,
         firstColumn,
       ];
     }
+    arraySortMap.pop();
 
     firstColumn.classList.add("columnSort");
     secondColumn.classList.add("columnSort");
 
-    intervalTimerId = setTimeout(() => {
-      replaceElements(firstColumn, secondColumn);
-      arraySortMap.pop();
-    }, ANIMATION_INTERVAL);
+    intervalTimerId = setTimeout(
+      () => replaceElements(firstColumnArray, secondColumnArray, isReplace),
+      ANIMATION_INTERVAL
+    );
 
     position--;
   }
 
-  function replaceElements(firstColumn, secondColumn) {
-    const container = document.querySelector(".container");
+  function replaceElements(firstColumnArray, secondColumnArray, isReplace) {
+    const firstColumn = firstColumnArray[0];
+    const secondColumn = secondColumnArray[0];
+
     if (isReplace) {
-      const firstCord = firstColumn.offsetLeft;
-      const secondCord = secondColumn.offsetLeft;
-      [firstColumn.style.left, secondColumn.style.left] = [
-        `${secondCord}px`,
-        `${firstCord}px`,
-      ];
+      const firstCord = firstColumnArray[1];
+      const secondCord = secondColumnArray[1];
+
+      firstColumn.style.left = `${firstCord}px`;
+      secondColumn.style.left = `${secondCord}px`;
+
       intervalTimerId = setTimeout(() => {
         firstColumn.classList.remove("columnSort");
         secondColumn.classList.remove("columnSort");
-
-        container.removeAttribute("sort");
       }, ANIMATION_INTERVAL);
     } else {
       firstColumn.classList.remove("columnSort");
       secondColumn.classList.remove("columnSort");
-
-      container.removeAttribute("sort");
     }
   }
-}
 
-function checkSortAttrib() {
-  const container = document.querySelector(".container");
-  if (container.hasAttribute("sort")) return true;
-  return false;
-}
+  function clickСounter(button) {
+    if (clickIntervalId === null) {
+      clickIntervalId = setInterval(() => {
+        if (counterClick > 0) {
+          const columnLength = columnsArray.length - 1;
+          let isEndSorting = cycleNumber > columnLength - 1;
 
-function getColumns() {
-  const container = document.querySelector(".container");
-  return container.querySelectorAll(".column");
-}
+          if (isEndSorting) {
+            counterClick = 0;
+            return;
+          }
 
-function getValidArray() {
-  const input = document.querySelector(".сhartInp");
+          counterClick--;
+          sortChartForward();
+        }
+        if (counterClick < 0) {
+          let isStartSorting = position === 0 && cycleNumber === 1;
 
-  const arrayNumb = input.value.split(" ").filter(function (val) {
-    if (val !== " " && isFinite(Number(val))) {
-      return val;
+          if (isStartSorting) {
+            counterClick = 0;
+            return;
+          }
+
+          counterClick++;
+          sortChartBack();
+        }
+
+        if (counterClick === 0) {
+          clearInterval(clickIntervalId);
+          clickIntervalId = null;
+        }
+      }, CLICK_INTERVAL);
     }
-  });
+    if (button.target.id === "sortForward") {
+      if (counterClick < 0) counterClick = 0;
+      counterClick++;
+    }
+    if (button.target.id === "sortBack") {
+      if (counterClick > 0) counterClick = 0;
+      counterClick--;
+    }
+  }
 
-  return arrayNumb.map((string) => Number(string));
+  function getColumns() {
+    const columns = container.querySelectorAll(".column");
+    return Array.from(columns).map(function (column) {
+      return [column, column.offsetLeft];
+    });
+  }
+
+  function getValidArray() {
+    const input = document.querySelector(".сhartInp");
+
+    const arrayNumb = input.value.split(" ").filter(function (val) {
+      if (val !== " " && isFinite(Number(val))) {
+        return val;
+      }
+    });
+
+    return arrayNumb.map((string) => Number(string));
+  }
+
+  function clearHistory() {
+    showBtnSort(false);
+    printColumns([]);
+    arraySortMap = [];
+    position = 0;
+    cycleNumber = 1;
+    counterClick = 0;
+    clearTimeout(intervalTimerId);
+  }
+
+  function validation() {
+    const array = getValidArray();
+
+    if (array.length > 0) showBtnCreate(true);
+    if (array.length == 0) clearHistory();
+    if (array.length == 1) showBtnSort(false);
+  }
+
+  function showBtnCreate(isOpen) {
+    const buttonCreate = document.getElementById("createChart");
+
+    buttonCreate.disabled = !isOpen;
+  }
+
+  function showBtnSort(isShow) {
+    const buttonSortForward = document.getElementById("sortForward");
+    const buttonSortBack = document.getElementById("sortBack");
+    buttonSortForward.disabled = !isShow;
+    buttonSortBack.disabled = !isShow;
+  }
+
+  buttonCreate.addEventListener("click", createChart);
+  input.addEventListener("input", validation);
+  buttonSortForward.addEventListener("click", clickСounter);
+  buttonSortBack.addEventListener("click", clickСounter);
 }
-
-function clearHistory() {
-  showBtnSort(false);
-  printColumns([]);
-  const container = document.querySelector(".container");
-  container.removeAttribute("sort");
-}
-
-function validation() {
-  const array = getValidArray();
-
-  if (array.length > 0) showBtnCreate(true);
-  if (array.length == 0) clearHistory();
-  if (array.length == 1) showBtnSort(false);
-}
-
-function showBtnCreate(isOpen) {
-  const buttonCreate = document.getElementById("createChart");
-
-  buttonCreate.disabled = !isOpen;
-}
-
-function showBtnSort(isShow) {
-  const buttonSortForward = document.getElementById("sortForward");
-  const buttonSortBack = document.getElementById("sortBack");
-  buttonSortForward.disabled = !isShow;
-  buttonSortBack.disabled = !isShow;
-}
-
-buttonCreate.addEventListener("click", createChart);
-input.addEventListener("input", validation);
+init();

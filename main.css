@@ -13,7 +13,7 @@
     color: azure;
     font-weight: bold;
     background-color: red;
-    transition: left 0.5s ease, background-color 0.5s ease; 
+    transition: left 0.4s ease, background-color 0.4s ease; 
     border: 1px solid black;
     align-self: flex-end;
 }
