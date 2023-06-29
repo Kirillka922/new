@@ -10,12 +10,10 @@ function init() {
   const container = document.querySelector(".container");
 
   let intervalTimerId = null;
-  let clickIntervalId = null;
   let position = 0;
   let cycleNumber = 1;
   let columnsArray = [];
   let arraySortMap = [];
-  let counterClick = 0;
 
   function printColumns(array) {
     container.querySelectorAll(".column").forEach((column) => column.remove());
@@ -49,6 +47,9 @@ function init() {
 
   function sortChartForward() {
     const columnLength = columnsArray.length - 1;
+    if (cycleNumber > columnLength - 1) {
+      return;
+    }
 
     const lastNumberForSort = columnLength - cycleNumber;
     if (position > lastNumberForSort) {
@@ -86,6 +87,9 @@ function init() {
   }
 
   function sortChartBack() {
+    if ((isStartSorting = position === 0 && cycleNumber === 1)) {
+      return;
+    }
     const lastNumberForSort = columnsArray.length + 1 - cycleNumber;
     if (position === 0) {
       position = lastNumberForSort;
@@ -138,49 +142,6 @@ function init() {
     }
   }
 
-  function clickСounter(button) {
-    if (clickIntervalId === null) {
-      clickIntervalId = setInterval(() => {
-        if (counterClick > 0) {
-          const columnLength = columnsArray.length - 1;
-          let isEndSorting = cycleNumber > columnLength - 1;
-
-          if (isEndSorting) {
-            counterClick = 0;
-            return;
-          }
-
-          counterClick--;
-          sortChartForward();
-        }
-        if (counterClick < 0) {
-          let isStartSorting = position === 0 && cycleNumber === 1;
-
-          if (isStartSorting) {
-            counterClick = 0;
-            return;
-          }
-
-          counterClick++;
-          sortChartBack();
-        }
-
-        if (counterClick === 0) {
-          clearInterval(clickIntervalId);
-          clickIntervalId = null;
-        }
-      }, CLICK_INTERVAL);
-    }
-    if (button.target.id === "sortForward") {
-      if (counterClick < 0) counterClick = 0;
-      counterClick++;
-    }
-    if (button.target.id === "sortBack") {
-      if (counterClick > 0) counterClick = 0;
-      counterClick--;
-    }
-  }
-
   function getColumns() {
     const columns = container.querySelectorAll(".column");
     return Array.from(columns).map(function (column) {
@@ -206,7 +167,7 @@ function init() {
     arraySortMap = [];
     position = 0;
     cycleNumber = 1;
-    counterClick = 0;
+
     clearTimeout(intervalTimerId);
   }
 
@@ -233,7 +194,7 @@ function init() {
 
   buttonCreate.addEventListener("click", createChart);
   input.addEventListener("input", validation);
-  buttonSortForward.addEventListener("click", clickСounter);
-  buttonSortBack.addEventListener("click", clickСounter);
+  buttonSortForward.addEventListener("click", sortChartForward);
+  buttonSortBack.addEventListener("click", sortChartBack);
 }
 init();
