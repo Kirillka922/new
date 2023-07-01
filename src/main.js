@@ -1,6 +1,5 @@
 const MINIMUM_HEIGHT = 20;
-const ANIMATION_INTERVAL = 400;
-const CLICK_INTERVAL = 1000;
+const ANIMATION_INTERVAL = 700;
 
 function init() {
   const buttonCreate = document.getElementById("createChart");
@@ -33,7 +32,7 @@ function init() {
   }
 
   function createChart() {
-    const columns = container.querySelectorAll(".column");
+    columns = container.querySelectorAll(".column");
     if (columns.length !== 0) {
       clearHistory();
     }
@@ -41,8 +40,26 @@ function init() {
     const validArray = getValidArray();
     printColumns(validArray);
 
-    columnsArray = getColumns();
+    columns = container.querySelectorAll(".column");
+    columns = Array.from(columns);
+    columnsArray = columns.map(function (column) {
+      // it will be our data storage structure
+      return { column: column, left: column.offsetLeft };
+    });
+
     if (validArray.length > 1) showBtnSort(true);
+  }
+
+  function recolorColumn(column) {
+    const isClassSort = column.classList.contains("columnSort");
+    if (isClassSort) {
+      column.classList.remove("columnSort");
+      column.classList.add("columnEndSort");
+      intervalTimerId = setTimeout(
+        () => column.classList.remove("columnEndSort"),
+        ANIMATION_INTERVAL
+      );
+    }
   }
 
   function sortChartForward() {
@@ -57,24 +74,40 @@ function init() {
       cycleNumber++;
     }
 
+    if (position > 0) {
+      const column = columnsArray[position - 1].column;
+      recolorColumn(column);
+    }
+    const isNewIteration = position === 0 && cycleNumber > 1;
+
+    if (!lastNumberForSort < 3 && isNewIteration) {
+      const column = columnsArray[lastNumberForSort + 1].column;
+      recolorColumn(column);
+    }
+    if (!lastNumberForSort < 4 && isNewIteration) {
+      const column = columnsArray[lastNumberForSort].column;
+      recolorColumn(column);
+    }
+
     const firstColumnArray = columnsArray[position];
     const secondColumnArray = columnsArray[position + 1];
-    const firstColumn = firstColumnArray[0];
-    const secondColumn = secondColumnArray[0];
-    const firstNumber = Number(firstColumnArray[0].textContent);
-    const secondNumber = Number(secondColumnArray[0].textContent);
+    const firstColumn = firstColumnArray.column;
+    const secondColumn = secondColumnArray.column;
+    const firstNumber = Number(firstColumn.textContent);
+    const secondNumber = Number(secondColumn.textContent);
 
     const isReplace = firstNumber > secondNumber;
 
+    arraySortMap.push(isReplace);
+
     if (isReplace) {
-      //we can't do these moves in replaceElements function because we need change
-      //values without a delay in the synchronized actions
-      [columnsArray[position][0], columnsArray[position + 1][0]] = [
+      [columnsArray[position].column, columnsArray[position + 1].column] = [
         secondColumn,
         firstColumn,
       ];
     }
-    arraySortMap.push(isReplace);
+
+    position++;
 
     firstColumn.classList.add("columnSort");
     secondColumn.classList.add("columnSort");
@@ -83,32 +116,49 @@ function init() {
       () => replaceElements(firstColumnArray, secondColumnArray, isReplace),
       ANIMATION_INTERVAL
     );
-    position++;
   }
 
   function sortChartBack() {
-    if ((isStartSorting = position === 0 && cycleNumber === 1)) {
-      return;
-    }
+    if (position === 0 && cycleNumber === 1) return;
+
     const lastNumberForSort = columnsArray.length + 1 - cycleNumber;
     if (position === 0) {
       position = lastNumberForSort;
       cycleNumber--;
     }
 
+    if (position !== columnsArray.length - 1) {
+      const column = columnsArray[position + 1].column;
+      recolorColumn(column);
+    }
+
+    const isEndIteration = position === lastNumberForSort;
+
+    if (lastNumberForSort > 1 && isEndIteration) {
+      const column = columnsArray[0].column;
+      recolorColumn(column);
+    }
+    if (lastNumberForSort > 2 && isEndIteration) {
+      const column = columnsArray[1].column;
+      recolorColumn(column);
+    }
+
     const firstColumnArray = columnsArray[position];
     const secondColumnArray = columnsArray[position - 1];
-    const firstColumn = firstColumnArray[0];
-    const secondColumn = secondColumnArray[0];
+    const firstColumn = firstColumnArray.column;
+    const secondColumn = secondColumnArray.column;
     const isReplace = arraySortMap[arraySortMap.length - 1];
 
+    arraySortMap.pop();
+
     if (isReplace) {
-      [columnsArray[position][0], columnsArray[position - 1][0]] = [
+      [columnsArray[position].column, columnsArray[position - 1].column] = [
         secondColumn,
         firstColumn,
       ];
     }
-    arraySortMap.pop();
+
+    position--;
 
     firstColumn.classList.add("columnSort");
     secondColumn.classList.add("columnSort");
@@ -117,47 +167,32 @@ function init() {
       () => replaceElements(firstColumnArray, secondColumnArray, isReplace),
       ANIMATION_INTERVAL
     );
-
-    position--;
   }
 
   function replaceElements(firstColumnArray, secondColumnArray, isReplace) {
-    const firstColumn = firstColumnArray[0];
-    const secondColumn = secondColumnArray[0];
-
     if (isReplace) {
-      const firstCord = firstColumnArray[1];
-      const secondCord = secondColumnArray[1];
-
-      firstColumn.style.left = `${firstCord}px`;
-      secondColumn.style.left = `${secondCord}px`;
+      firstColumnArray.column.style.left = `${firstColumnArray.left}px`;
+      secondColumnArray.column.style.left = `${secondColumnArray.left}px`;
 
       intervalTimerId = setTimeout(() => {
-        firstColumn.classList.remove("columnSort");
-        secondColumn.classList.remove("columnSort");
+        secondColumnArray.column.classList.remove("columnSort");
+        firstColumnArray.column.classList.remove("columnSort");
       }, ANIMATION_INTERVAL);
     } else {
-      firstColumn.classList.remove("columnSort");
-      secondColumn.classList.remove("columnSort");
+      intervalTimerId = setTimeout(() => {
+        secondColumnArray.column.classList.remove("columnSort");
+        firstColumnArray.column.classList.remove("columnSort");
+      }, ANIMATION_INTERVAL);
     }
-  }
-
-  function getColumns() {
-    const columns = container.querySelectorAll(".column");
-    return Array.from(columns).map(function (column) {
-      return [column, column.offsetLeft];
-    });
   }
 
   function getValidArray() {
     const input = document.querySelector(".сhartInp");
-
     const arrayNumb = input.value.split(" ").filter(function (val) {
       if (val !== " " && isFinite(Number(val))) {
         return val;
       }
     });
-
     return arrayNumb.map((string) => Number(string));
   }
 
@@ -167,7 +202,6 @@ function init() {
     arraySortMap = [];
     position = 0;
     cycleNumber = 1;
-
     clearTimeout(intervalTimerId);
   }
 
@@ -186,8 +220,6 @@ function init() {
   }
 
   function showBtnSort(isShow) {
-    const buttonSortForward = document.getElementById("sortForward");
-    const buttonSortBack = document.getElementById("sortBack");
     buttonSortForward.disabled = !isShow;
     buttonSortBack.disabled = !isShow;
   }
