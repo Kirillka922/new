@@ -1,5 +1,6 @@
+"use strict";
 const MINIMUM_HEIGHT = 20;
-const ANIMATION_INTERVAL = 700;
+const ANIMATION_INTERVAL = 2000;
 
 function init() {
   const buttonCreate = document.getElementById("createChart");
@@ -32,34 +33,54 @@ function init() {
   }
 
   function createChart() {
-    columns = container.querySelectorAll(".column");
-    if (columns.length !== 0) {
+    const columnsNodeList = container.querySelectorAll(".column");
+    if (columnsNodeList.length !== 0) {
       clearHistory();
     }
 
     const validArray = getValidArray();
     printColumns(validArray);
-
-    columns = container.querySelectorAll(".column");
-    columns = Array.from(columns);
-    columnsArray = columns.map(function (column) {
-      // it will be our data storage structure
-      return { column: column, left: column.offsetLeft };
-    });
+    updateColumnsArray();
 
     if (validArray.length > 1) showBtnSort(true);
   }
 
-  function recolorColumn(column) {
-    const isClassSort = column.classList.contains("columnSort");
-    if (isClassSort) {
-      column.classList.remove("columnSort");
-      column.classList.add("columnEndSort");
-      intervalTimerId = setTimeout(
-        () => column.classList.remove("columnEndSort"),
-        ANIMATION_INTERVAL
-      );
+  function sortChartBack() {
+    if (position === 0 && cycleNumber === 1) return;
+
+    const lastNumberForSort = columnsArray.length + 1 - cycleNumber;
+    if (position === 0) {
+      if (columnsArray[0].classList.contains("columnSort")) {
+        columnsArray[0].classList.remove("columnSort");
+        columnsArray[0].classList.add("columnEndSort");
+      }
+      position = lastNumberForSort;
+      cycleNumber--;
     }
+
+    const firstColumn = columnsArray[position];
+    const secondColumn = columnsArray[position - 1];
+    const isReplace = arraySortMap.pop();
+
+    if (isReplace) {
+      [columnsArray[position], columnsArray[position - 1]] = [
+        columnsArray[position - 1],
+        columnsArray[position],
+      ];
+    }
+
+    position--;
+
+    firstColumn.classList.add("columnSort");
+    secondColumn.classList.add("columnEndSort");
+
+    if (!isReplace) {
+      firstColumn.classList.add("columnEndSort");
+      firstColumn.classList.remove("columnSort");
+      secondColumn.classList.add("columnSort");
+      secondColumn.classList.remove("columnEndSort");
+    }
+    replaceElements(firstColumn, secondColumn, isReplace);
   }
 
   function sortChartForward() {
@@ -70,120 +91,57 @@ function init() {
 
     const lastNumberForSort = columnLength - cycleNumber;
     if (position > lastNumberForSort) {
+      if (columnsArray[position].classList.contains("columnSort")) {
+        columnsArray[position].classList.remove("columnSort");
+        columnsArray[position].classList.add("columnEndSort");
+      }
+
       position = 0;
       cycleNumber++;
     }
 
-    if (position > 0) {
-      const column = columnsArray[position - 1].column;
-      recolorColumn(column);
-    }
-    const isNewIteration = position === 0 && cycleNumber > 1;
+    const firstColumn = columnsArray[position];
+    const secondColumn = columnsArray[position + 1];
 
-    if (!lastNumberForSort < 3 && isNewIteration) {
-      const column = columnsArray[lastNumberForSort + 1].column;
-      recolorColumn(column);
-    }
-    if (!lastNumberForSort < 4 && isNewIteration) {
-      const column = columnsArray[lastNumberForSort].column;
-      recolorColumn(column);
-    }
-
-    const firstColumnArray = columnsArray[position];
-    const secondColumnArray = columnsArray[position + 1];
-    const firstColumn = firstColumnArray.column;
-    const secondColumn = secondColumnArray.column;
-    const firstNumber = Number(firstColumn.textContent);
-    const secondNumber = Number(secondColumn.textContent);
-
-    const isReplace = firstNumber > secondNumber;
+    const isReplace =
+      Number(firstColumn.textContent) > Number(secondColumn.textContent);
 
     arraySortMap.push(isReplace);
 
     if (isReplace) {
-      [columnsArray[position].column, columnsArray[position + 1].column] = [
-        secondColumn,
-        firstColumn,
+      [columnsArray[position], columnsArray[position + 1]] = [
+        columnsArray[position + 1],
+        columnsArray[position],
       ];
     }
-
     position++;
 
     firstColumn.classList.add("columnSort");
-    secondColumn.classList.add("columnSort");
+    secondColumn.classList.add("columnEndSort");
 
-    intervalTimerId = setTimeout(
-      () => replaceElements(firstColumnArray, secondColumnArray, isReplace),
-      ANIMATION_INTERVAL
-    );
+    if (!isReplace) {
+      firstColumn.classList.add("columnEndSort");
+      firstColumn.classList.remove("columnSort");
+      secondColumn.classList.add("columnSort");
+      secondColumn.classList.remove("columnEndSort");
+    }
+
+    replaceElements(firstColumn, secondColumn, isReplace);
   }
 
-  function sortChartBack() {
-    if (position === 0 && cycleNumber === 1) return;
-
-    const lastNumberForSort = columnsArray.length + 1 - cycleNumber;
-    if (position === 0) {
-      position = lastNumberForSort;
-      cycleNumber--;
-    }
-
-    if (position !== columnsArray.length - 1) {
-      const column = columnsArray[position + 1].column;
-      recolorColumn(column);
-    }
-
-    const isEndIteration = position === lastNumberForSort;
-
-    if (lastNumberForSort > 1 && isEndIteration) {
-      const column = columnsArray[0].column;
-      recolorColumn(column);
-    }
-    if (lastNumberForSort > 2 && isEndIteration) {
-      const column = columnsArray[1].column;
-      recolorColumn(column);
-    }
-
-    const firstColumnArray = columnsArray[position];
-    const secondColumnArray = columnsArray[position - 1];
-    const firstColumn = firstColumnArray.column;
-    const secondColumn = secondColumnArray.column;
-    const isReplace = arraySortMap[arraySortMap.length - 1];
-
-    arraySortMap.pop();
-
+  function replaceElements(firstColumn, secondColumn, isReplace) {
     if (isReplace) {
-      [columnsArray[position].column, columnsArray[position - 1].column] = [
-        secondColumn,
-        firstColumn,
+      [firstColumn.style.left, secondColumn.style.left] = [
+        secondColumn.style.left,
+        firstColumn.style.left,
       ];
     }
-
-    position--;
-
-    firstColumn.classList.add("columnSort");
-    secondColumn.classList.add("columnSort");
-
-    intervalTimerId = setTimeout(
-      () => replaceElements(firstColumnArray, secondColumnArray, isReplace),
-      ANIMATION_INTERVAL
-    );
-  }
-
-  function replaceElements(firstColumnArray, secondColumnArray, isReplace) {
-    if (isReplace) {
-      firstColumnArray.column.style.left = `${firstColumnArray.left}px`;
-      secondColumnArray.column.style.left = `${secondColumnArray.left}px`;
-
-      intervalTimerId = setTimeout(() => {
-        secondColumnArray.column.classList.remove("columnSort");
-        firstColumnArray.column.classList.remove("columnSort");
-      }, ANIMATION_INTERVAL);
-    } else {
-      intervalTimerId = setTimeout(() => {
-        secondColumnArray.column.classList.remove("columnSort");
-        firstColumnArray.column.classList.remove("columnSort");
-      }, ANIMATION_INTERVAL);
-    }
+    intervalTimerId = setTimeout(() => {
+      secondColumn.classList.remove("columnSort");
+      firstColumn.classList.remove("columnSort");
+      secondColumn.classList.remove("columnEndSort");
+      firstColumn.classList.remove("columnEndSort");
+    }, ANIMATION_INTERVAL);
   }
 
   function getValidArray() {
@@ -194,6 +152,11 @@ function init() {
       }
     });
     return arrayNumb.map((string) => Number(string));
+  }
+
+  function updateColumnsArray() {
+    const columnsNodeList = container.querySelectorAll(".column");
+    columnsArray = Array.from(columnsNodeList);
   }
 
   function clearHistory() {
