@@ -1,6 +1,6 @@
 "use strict";
 const MINIMUM_HEIGHT = 20;
-const ANIMATION_INTERVAL = 2000;
+const ANIMATION_INTERVAL = 1000;
 
 function init() {
   const buttonCreate = document.getElementById("createChart");
@@ -50,10 +50,6 @@ function init() {
 
     const lastNumberForSort = columnsArray.length + 1 - cycleNumber;
     if (position === 0) {
-      if (columnsArray[0].classList.contains("columnSort")) {
-        columnsArray[0].classList.remove("columnSort");
-        columnsArray[0].classList.add("columnEndSort");
-      }
       position = lastNumberForSort;
       cycleNumber--;
     }
@@ -64,21 +60,21 @@ function init() {
 
     if (isReplace) {
       [columnsArray[position], columnsArray[position - 1]] = [
-        columnsArray[position - 1],
-        columnsArray[position],
+        secondColumn,
+        firstColumn,
       ];
     }
 
     position--;
 
-    firstColumn.classList.add("columnSort");
-    secondColumn.classList.add("columnEndSort");
+    firstColumn.classList.add("sortFirstElem");
+    secondColumn.classList.add("sortSecondElem");
 
     if (!isReplace) {
-      firstColumn.classList.add("columnEndSort");
-      firstColumn.classList.remove("columnSort");
-      secondColumn.classList.add("columnSort");
-      secondColumn.classList.remove("columnEndSort");
+      firstColumn.classList.add("sortSecondElem");
+      firstColumn.classList.remove("sortFirstElem");
+      secondColumn.classList.add("sortFirstElem");
+      secondColumn.classList.remove("sortSecondElem");
     }
     replaceElements(firstColumn, secondColumn, isReplace);
   }
@@ -91,11 +87,6 @@ function init() {
 
     const lastNumberForSort = columnLength - cycleNumber;
     if (position > lastNumberForSort) {
-      if (columnsArray[position].classList.contains("columnSort")) {
-        columnsArray[position].classList.remove("columnSort");
-        columnsArray[position].classList.add("columnEndSort");
-      }
-
       position = 0;
       cycleNumber++;
     }
@@ -110,20 +101,20 @@ function init() {
 
     if (isReplace) {
       [columnsArray[position], columnsArray[position + 1]] = [
-        columnsArray[position + 1],
-        columnsArray[position],
+        secondColumn,
+        firstColumn,
       ];
     }
     position++;
 
-    firstColumn.classList.add("columnSort");
-    secondColumn.classList.add("columnEndSort");
+    firstColumn.classList.add("sortFirstElem");
+    secondColumn.classList.add("sortSecondElem");
 
     if (!isReplace) {
-      firstColumn.classList.add("columnEndSort");
-      firstColumn.classList.remove("columnSort");
-      secondColumn.classList.add("columnSort");
-      secondColumn.classList.remove("columnEndSort");
+      firstColumn.classList.add("sortSecondElem");
+      firstColumn.classList.remove("sortFirstElem");
+      secondColumn.classList.add("sortFirstElem");
+      secondColumn.classList.remove("sortSecondElem");
     }
 
     replaceElements(firstColumn, secondColumn, isReplace);
@@ -137,10 +128,10 @@ function init() {
       ];
     }
     intervalTimerId = setTimeout(() => {
-      secondColumn.classList.remove("columnSort");
-      firstColumn.classList.remove("columnSort");
-      secondColumn.classList.remove("columnEndSort");
-      firstColumn.classList.remove("columnEndSort");
+      secondColumn.classList.remove("sortFirstElem");
+      firstColumn.classList.remove("sortFirstElem");
+      secondColumn.classList.remove("sortSecondElem");
+      firstColumn.classList.remove("sortSecondElem");
     }, ANIMATION_INTERVAL);
   }
 

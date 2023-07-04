@@ -18,10 +18,10 @@
     border-radius: 6px 6px 0px 0px;
     align-self: flex-end;
 }
-
-.columnSort{
+.sortFirstElem{
     background-color: red;
 }
-.columnEndSort{
+
+.sortSecondElem{
     background-color: rgb(255, 247, 0);
 }
