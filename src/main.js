@@ -66,16 +66,6 @@ function init() {
     }
 
     position--;
-
-    firstColumn.classList.add("sortFirstElem");
-    secondColumn.classList.add("sortSecondElem");
-
-    if (!isReplace) {
-      firstColumn.classList.add("sortSecondElem");
-      firstColumn.classList.remove("sortFirstElem");
-      secondColumn.classList.add("sortFirstElem");
-      secondColumn.classList.remove("sortSecondElem");
-    }
     replaceElements(firstColumn, secondColumn, isReplace);
   }
 
@@ -106,17 +96,6 @@ function init() {
       ];
     }
     position++;
-
-    firstColumn.classList.add("sortFirstElem");
-    secondColumn.classList.add("sortSecondElem");
-
-    if (!isReplace) {
-      firstColumn.classList.add("sortSecondElem");
-      firstColumn.classList.remove("sortFirstElem");
-      secondColumn.classList.add("sortFirstElem");
-      secondColumn.classList.remove("sortSecondElem");
-    }
-
     replaceElements(firstColumn, secondColumn, isReplace);
   }
 
@@ -126,6 +105,11 @@ function init() {
         secondColumn.style.left,
         firstColumn.style.left,
       ];
+      firstColumn.classList.add("sortFirstElem");
+      secondColumn.classList.add("sortSecondElem");
+    } else {
+      firstColumn.classList.add("sortSecondElem");
+      secondColumn.classList.add("sortFirstElem");
     }
     intervalTimerId = setTimeout(() => {
       secondColumn.classList.remove("sortFirstElem");
