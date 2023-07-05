@@ -66,7 +66,7 @@ function init() {
     }
 
     position--;
-    replaceElements(firstColumn, secondColumn, isReplace);
+    changeChart(firstColumn, secondColumn, isReplace);
   }
 
   function sortChartForward() {
@@ -96,18 +96,19 @@ function init() {
       ];
     }
     position++;
-    replaceElements(firstColumn, secondColumn, isReplace);
+    changeChart(firstColumn, secondColumn, isReplace);
   }
 
-  function replaceElements(firstColumn, secondColumn, isReplace) {
+  function changeChart(firstColumn, secondColumn, isReplace) {
+    firstColumn.classList.add("sortFirstElem");
+    secondColumn.classList.add("sortSecondElem");
+
     if (isReplace) {
       [firstColumn.style.left, secondColumn.style.left] = [
         secondColumn.style.left,
         firstColumn.style.left,
       ];
     }
-    firstColumn.classList.add("sortFirstElem");
-    secondColumn.classList.add("sortSecondElem");
 
     intervalTimerId = setTimeout(() => {
       firstColumn.classList.remove("sortFirstElem");
