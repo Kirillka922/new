@@ -1,6 +1,6 @@
 "use strict";
 const MINIMUM_HEIGHT = 20;
-const ANIMATION_INTERVAL = 1000;
+const ANIMATION_INTERVAL = 500;
 
 function init() {
   const buttonCreate = document.getElementById("createChart");
@@ -105,17 +105,13 @@ function init() {
         secondColumn.style.left,
         firstColumn.style.left,
       ];
-      firstColumn.classList.add("sortFirstElem");
-      secondColumn.classList.add("sortSecondElem");
-    } else {
-      firstColumn.classList.add("sortSecondElem");
-      secondColumn.classList.add("sortFirstElem");
     }
+    firstColumn.classList.add("sortFirstElem");
+    secondColumn.classList.add("sortSecondElem");
+
     intervalTimerId = setTimeout(() => {
-      secondColumn.classList.remove("sortFirstElem");
       firstColumn.classList.remove("sortFirstElem");
       secondColumn.classList.remove("sortSecondElem");
-      firstColumn.classList.remove("sortSecondElem");
     }, ANIMATION_INTERVAL);
   }
 
