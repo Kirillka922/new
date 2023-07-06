@@ -56,17 +56,10 @@ function init() {
 
     const firstColumn = columnsArray[position];
     const secondColumn = columnsArray[position - 1];
-    const isReplace = arraySortMap.pop();
+    const operation = "sortBack";
 
-    if (isReplace) {
-      [columnsArray[position], columnsArray[position - 1]] = [
-        secondColumn,
-        firstColumn,
-      ];
-    }
-
+    replaceElements(firstColumn, secondColumn, operation);
     position--;
-    changeChart(firstColumn, secondColumn, isReplace);
   }
 
   function sortChartForward() {
@@ -83,25 +76,40 @@ function init() {
 
     const firstColumn = columnsArray[position];
     const secondColumn = columnsArray[position + 1];
+    const operation = "sortForward";
 
-    const isReplace =
-      Number(firstColumn.textContent) > Number(secondColumn.textContent);
-
-    arraySortMap.push(isReplace);
-
-    if (isReplace) {
-      [columnsArray[position], columnsArray[position + 1]] = [
-        secondColumn,
-        firstColumn,
-      ];
-    }
+    replaceElements(firstColumn, secondColumn, operation);
     position++;
-    changeChart(firstColumn, secondColumn, isReplace);
   }
 
-  function changeChart(firstColumn, secondColumn, isReplace) {
-    firstColumn.classList.add("sortFirstElem");
-    secondColumn.classList.add("sortSecondElem");
+  function replaceElements(firstColumn, secondColumn, operation) {
+    recolorColumns(firstColumn, secondColumn);
+
+    let isReplace = false;
+    switch (operation) {
+      case "sortBack":
+        isReplace = arraySortMap.pop();
+
+        if (isReplace) {
+          [columnsArray[position], columnsArray[position - 1]] = [
+            secondColumn,
+            firstColumn,
+          ];
+        }
+        break;
+      case "sortForward":
+        isReplace =
+          Number(firstColumn.textContent) > Number(secondColumn.textContent);
+
+        if (isReplace) {
+          [columnsArray[position], columnsArray[position + 1]] = [
+            secondColumn,
+            firstColumn,
+          ];
+        }
+        arraySortMap.push(isReplace);
+        break;
+    }
 
     if (isReplace) {
       [firstColumn.style.left, secondColumn.style.left] = [
@@ -109,6 +117,11 @@ function init() {
         firstColumn.style.left,
       ];
     }
+  }
+
+  function recolorColumns(firstColumn, secondColumn) {
+    firstColumn.classList.add("sortFirstElem");
+    secondColumn.classList.add("sortSecondElem");
 
     intervalTimerId = setTimeout(() => {
       firstColumn.classList.remove("sortFirstElem");
