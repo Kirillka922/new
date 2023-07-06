@@ -54,12 +54,7 @@ function init() {
       cycleNumber--;
     }
 
-    const firstColumn = columnsArray[position];
-    const secondColumn = columnsArray[position - 1];
-    const operation = "sortBack";
-
-    replaceElements(firstColumn, secondColumn, operation);
-    position--;
+    replaceElements(position--);
   }
 
   function sortChartForward() {
@@ -74,42 +69,29 @@ function init() {
       cycleNumber++;
     }
 
-    const firstColumn = columnsArray[position];
-    const secondColumn = columnsArray[position + 1];
-    const operation = "sortForward";
-
-    replaceElements(firstColumn, secondColumn, operation);
-    position++;
+    replaceElements(position++);
   }
 
-  function replaceElements(firstColumn, secondColumn, operation) {
-    recolorColumns(firstColumn, secondColumn);
-
+  function replaceElements(oldPosition) {
+    const firstColumn = columnsArray[oldPosition];
+    const secondColumn = columnsArray[position];
     let isReplace = false;
-    switch (operation) {
-      case "sortBack":
-        isReplace = arraySortMap.pop();
 
-        if (isReplace) {
-          [columnsArray[position], columnsArray[position - 1]] = [
-            secondColumn,
-            firstColumn,
-          ];
-        }
-        break;
-      case "sortForward":
-        isReplace =
-          Number(firstColumn.textContent) > Number(secondColumn.textContent);
-
-        if (isReplace) {
-          [columnsArray[position], columnsArray[position + 1]] = [
-            secondColumn,
-            firstColumn,
-          ];
-        }
-        arraySortMap.push(isReplace);
-        break;
+    if (oldPosition > position) {
+      isReplace = arraySortMap.pop();
     }
+    if (oldPosition < position) {
+      isReplace =
+        Number(firstColumn.textContent) > Number(secondColumn.textContent);
+      arraySortMap.push(isReplace);
+    }
+    if (isReplace) {
+      [columnsArray[oldPosition], columnsArray[position]] = [
+        secondColumn,
+        firstColumn,
+      ];
+    }
+    recolorColumns(firstColumn, secondColumn);
 
     if (isReplace) {
       [firstColumn.style.left, secondColumn.style.left] = [
