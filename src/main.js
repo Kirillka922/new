@@ -70,7 +70,7 @@ function init() {
       cycleNumber++;
     }
 
-    replaceElements(+1);
+    replaceElements(1);
     position++;
   }
 
@@ -87,16 +87,14 @@ function init() {
       isReplace = arraySortMap.pop();
     }
 
+    recolorColumns(firstColumn, secondColumn);
+
     if (isReplace) {
       [columnsArray[position], columnsArray[position + operation]] = [
         secondColumn,
         firstColumn,
       ];
-    }
 
-    recolorColumns(firstColumn, secondColumn);
-
-    if (isReplace) {
       [firstColumn.style.left, secondColumn.style.left] = [
         secondColumn.style.left,
         firstColumn.style.left,
