@@ -54,7 +54,8 @@ function init() {
       cycleNumber--;
     }
 
-    replaceElements(position--);
+    replaceElements(-1);
+    position--;
   }
 
   function sortChartForward() {
@@ -69,28 +70,30 @@ function init() {
       cycleNumber++;
     }
 
-    replaceElements(position++);
+    replaceElements(+1);
+    position++;
   }
 
-  function replaceElements(oldPosition) {
-    const firstColumn = columnsArray[oldPosition];
-    const secondColumn = columnsArray[position];
+  function replaceElements(operation) {
+    const firstColumn = columnsArray[position];
+    const secondColumn = columnsArray[position + operation];
     let isReplace = false;
 
-    if (oldPosition > position) {
-      isReplace = arraySortMap.pop();
-    }
-    if (oldPosition < position) {
+    if (operation > 0) {
       isReplace =
         Number(firstColumn.textContent) > Number(secondColumn.textContent);
       arraySortMap.push(isReplace);
+    } else {
+      isReplace = arraySortMap.pop();
     }
+
     if (isReplace) {
-      [columnsArray[oldPosition], columnsArray[position]] = [
+      [columnsArray[position], columnsArray[position + operation]] = [
         secondColumn,
         firstColumn,
       ];
     }
+
     recolorColumns(firstColumn, secondColumn);
 
     if (isReplace) {
