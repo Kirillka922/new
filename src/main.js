@@ -1,22 +1,34 @@
-"use strict";
 const MINIMUM_HEIGHT = 20;
 const ANIMATION_INTERVAL = 500;
 
-function init() {
-  const buttonCreate = document.getElementById("createChart");
-  const buttonSortForward = document.getElementById("sortForward");
-  const buttonSortBack = document.getElementById("sortBack");
-  const input = document.querySelector(".сhartInp");
-  const container = document.querySelector(".container");
+const createNewChartBtn = document.getElementById("createNewChart");
+createNewChartBtn.addEventListener("click", createNewChart);
 
-  let intervalTimerId = null;
-  let position = 0;
-  let cycleNumber = 1;
-  let columnsArray = [];
-  let arraySortMap = [];
+class Chart {
+  intervalTimerId = null;
+  position = 0;
+  cycleNumber = 1;
+  columnsArray = [];
+  arraySortMap = [];
+  columnsContainer = null;
+  chartContainer = null;
 
-  function printColumns(array) {
-    container.querySelectorAll(".column").forEach((column) => column.remove());
+  createChart() {
+    if (this.columnsContainer.length !== 0) {
+      this.clearHistory();
+    }
+
+    const validArray = this.getValidArray();
+    this.printColumns(validArray);
+    this.updateColumnsArray();
+
+    if (validArray.length > 1) this.showBtnSort(true);
+  }
+
+  printColumns(array) {
+    this.columnsContainer
+      .querySelectorAll(".column")
+      .forEach((column) => column.remove());
 
     for (let i = 0; i < array.length; i++) {
       const heightColumn =
@@ -25,75 +37,63 @@ function init() {
       newColumn.classList.add("column");
       newColumn.style.height = `${heightColumn}px`;
       newColumn.textContent = array[i];
-      container.appendChild(newColumn);
+      this.columnsContainer.appendChild(newColumn);
       const leftForColumn = newColumn.offsetWidth * i;
       const indentForColumn = 1 + i;
       newColumn.style.left = `${leftForColumn + indentForColumn}px`;
     }
   }
 
-  function createChart() {
-    const columnsNodeList = container.querySelectorAll(".column");
-    if (columnsNodeList.length !== 0) {
-      clearHistory();
+  sortChartBack() {
+    if (this.position === 0 && this.cycleNumber === 1) return;
+
+    const lastNumberForSort = this.columnsArray.length + 1 - this.cycleNumber;
+    if (this.position === 0) {
+      this.position = lastNumberForSort;
+      this.cycleNumber = this.cycleNumber - 1;
     }
 
-    const validArray = getValidArray();
-    printColumns(validArray);
-    updateColumnsArray();
-
-    if (validArray.length > 1) showBtnSort(true);
+    this.replaceElements(-1);
+    this.position = this.position - 1;
   }
 
-  function sortChartBack() {
-    if (position === 0 && cycleNumber === 1) return;
+  sortChartForward() {
+    const columnLength = this.columnsArray.length - 1;
 
-    const lastNumberForSort = columnsArray.length + 1 - cycleNumber;
-    if (position === 0) {
-      position = lastNumberForSort;
-      cycleNumber--;
-    }
-
-    replaceElements(-1);
-    position--;
-  }
-
-  function sortChartForward() {
-    const columnLength = columnsArray.length - 1;
-    if (cycleNumber > columnLength - 1) {
+    if (this.cycleNumber > columnLength - 1) {
       return;
     }
 
-    const lastNumberForSort = columnLength - cycleNumber;
-    if (position > lastNumberForSort) {
-      position = 0;
-      cycleNumber++;
+    const lastNumberForSort = columnLength - this.cycleNumber;
+    if (this.position > lastNumberForSort) {
+      this.position = 0;
+      this.cycleNumber = this.cycleNumber + 1;
     }
 
-    replaceElements(1);
-    position++;
+    this.replaceElements(1);
+    this.position = this.position + 1;
   }
 
-  function replaceElements(operation) {
-    const firstColumn = columnsArray[position];
-    const secondColumn = columnsArray[position + operation];
+  replaceElements(operation) {
+    const firstColumn = this.columnsArray[this.position];
+    const secondColumn = this.columnsArray[this.position + operation];
     let isReplace = false;
 
     if (operation > 0) {
       isReplace =
         Number(firstColumn.textContent) > Number(secondColumn.textContent);
-      arraySortMap.push(isReplace);
+      this.arraySortMap.push(isReplace);
     } else {
-      isReplace = arraySortMap.pop();
+      isReplace = this.arraySortMap.pop();
     }
 
-    recolorColumns(firstColumn, secondColumn);
+    this.recolorColumns(firstColumn, secondColumn);
 
     if (isReplace) {
-      [columnsArray[position], columnsArray[position + operation]] = [
-        secondColumn,
-        firstColumn,
-      ];
+      [
+        this.columnsArray[this.position],
+        this.columnsArray[this.position + operation],
+      ] = [secondColumn, firstColumn];
 
       [firstColumn.style.left, secondColumn.style.left] = [
         secondColumn.style.left,
@@ -102,19 +102,40 @@ function init() {
     }
   }
 
-  function recolorColumns(firstColumn, secondColumn) {
+  recolorColumns(firstColumn, secondColumn) {
     firstColumn.classList.add("sortFirstElem");
     secondColumn.classList.add("sortSecondElem");
 
-    intervalTimerId = setTimeout(() => {
+    this.intervalTimerId = setTimeout(() => {
       firstColumn.classList.remove("sortFirstElem");
       secondColumn.classList.remove("sortSecondElem");
     }, ANIMATION_INTERVAL);
   }
 
-  function getValidArray() {
-    const input = document.querySelector(".сhartInp");
-    const arrayNumb = input.value.split(" ").filter(function (val) {
+  updateColumnsArray() {
+    const columnsList = this.columnsContainer.querySelectorAll(".column");
+    this.columnsArray = Array.from(columnsList);
+  }
+
+  clearHistory() {
+    this.showBtnSort(false);
+    this.printColumns([]);
+    this.arraySortMap = [];
+    this.position = 0;
+    this.cycleNumber = 1;
+    clearTimeout(this.intervalTimerId);
+  }
+
+  validation() {
+    const array = this.getValidArray();
+
+    if (array.length > 0) this.showBtnCreate(true);
+    if (array.length == 0) this.clearHistory();
+    if (array.length == 1) this.showBtnSort(false);
+  }
+
+  getValidArray() {
+    const arrayNumb = this.input.value.split(" ").filter(function (val) {
       if (val !== " " && isFinite(Number(val))) {
         return val;
       }
@@ -122,42 +143,77 @@ function init() {
     return arrayNumb.map((string) => Number(string));
   }
 
-  function updateColumnsArray() {
-    const columnsNodeList = container.querySelectorAll(".column");
-    columnsArray = Array.from(columnsNodeList);
+  showBtnCreate(isOpen) {
+    this.buttonCreate.disabled = !isOpen;
   }
 
-  function clearHistory() {
-    showBtnSort(false);
-    printColumns([]);
-    arraySortMap = [];
-    position = 0;
-    cycleNumber = 1;
-    clearTimeout(intervalTimerId);
+  showBtnSort(isShow) {
+    this.buttonSortForward.disabled = !isShow;
+    this.buttonSortBack.disabled = !isShow;
   }
 
-  function validation() {
-    const array = getValidArray();
+  runChart() {
+    const chartsContainer = document.getElementById("chartsContainer");
 
-    if (array.length > 0) showBtnCreate(true);
-    if (array.length == 0) clearHistory();
-    if (array.length == 1) showBtnSort(false);
+    const chartContainer = document.createElement("div");
+    this.chartContainer = chartContainer;
+
+    chartContainer.classList.add("chartContainer");
+    chartsContainer.appendChild(chartContainer);
+
+    const newInp = document.createElement("input");
+    newInp.setAttribute("type", "text");
+    newInp.classList.add("сhartInp");
+    chartContainer.appendChild(newInp);
+    this.input = newInp;
+
+    const newButtonCreate = document.createElement("button");
+    newButtonCreate.setAttribute("disabled", "true");
+    const createChartText = document.createTextNode("Построить график");
+    newButtonCreate.appendChild(createChartText);
+    chartContainer.appendChild(newButtonCreate);
+    this.buttonCreate = newButtonCreate;
+
+    const newButtonSortBack = document.createElement("button");
+    newButtonSortBack.setAttribute("disabled", "true");
+    const sortBackText = document.createTextNode("Сортировать назад");
+    newButtonSortBack.appendChild(sortBackText);
+    chartContainer.appendChild(newButtonSortBack);
+    this.buttonSortBack = newButtonSortBack;
+
+    const newButtonSortForw = document.createElement("button");
+    newButtonSortForw.setAttribute("disabled", "true");
+    const sortForwText = document.createTextNode("Сортировать вперед");
+    newButtonSortForw.appendChild(sortForwText);
+    chartContainer.appendChild(newButtonSortForw);
+    this.buttonSortForward = newButtonSortForw;
+
+    const newButtonRemove = document.createElement("button");
+    const ButtonRemoveText = document.createTextNode("Remove");
+    newButtonRemove.appendChild(ButtonRemoveText);
+    chartContainer.appendChild(newButtonRemove);
+    this.buttonRemove = newButtonRemove;
+
+    const newContainer = document.createElement("div");
+    newContainer.classList.add("container");
+    this.columnsContainer = newContainer;
+    chartContainer.appendChild(newContainer);
+
+    this.input.addEventListener("input", () => this.validation());
+    this.buttonCreate.addEventListener("click", () => this.createChart());
+    this.buttonSortForward.addEventListener("click", () =>
+      this.sortChartForward()
+    );
+    this.buttonSortBack.addEventListener("click", () => this.sortChartBack());
+    this.buttonRemove.addEventListener("click", () => this.removeChart());
   }
 
-  function showBtnCreate(isOpen) {
-    const buttonCreate = document.getElementById("createChart");
-
-    buttonCreate.disabled = !isOpen;
+  removeChart() {
+    this.chartContainer.remove();
   }
-
-  function showBtnSort(isShow) {
-    buttonSortForward.disabled = !isShow;
-    buttonSortBack.disabled = !isShow;
-  }
-
-  buttonCreate.addEventListener("click", createChart);
-  input.addEventListener("input", validation);
-  buttonSortForward.addEventListener("click", sortChartForward);
-  buttonSortBack.addEventListener("click", sortChartBack);
 }
-init();
+
+function createNewChart() {
+  const myChart = new Chart();
+  myChart.runChart();
+}

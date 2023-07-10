@@ -1,23 +1,17 @@
 <!doctype html>
-<html lang="ru">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Диаграмма</title>
-		<link rel="stylesheet" href="main.css">
-		
-	</head>
-	<body>
-		<h2>Введите числа для построения графика</h2>
-		<input type="text" class="сhartInp" />
-		<button id="createChart" disabled="true">Построить график</button>
-		<hr />
-		<div>
-			<button id="sortBack" disabled="true">Сортировать назад</button>
-			<button id="sortForward" disabled="true">Сортировать вперед</button>
-		</div>
-		<div class="container"></div>
-		<script src="dist/main.js"></script>
-		
-	</body>
-</html>
+		<html lang="ru">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Диаграмма</title>
+				<link rel="stylesheet" href="main.css">
+				
+			</head>
+			<body>
+				<h2>Создайте график и ведите числа для построения гистограммы</h2>
+				<button type="button" id="createNewChart">Создать график</button>
+				<div id="chartsContainer"></div>
+				<script src="dist/main.js"></script>
+				
+			</body>
+		</html>
