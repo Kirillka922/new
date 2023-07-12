@@ -6,30 +6,49 @@ const chartInput = document.querySelector(".сhartInp");
 const chartsContainer = document.getElementById("chartsContainer");
 
 class Chart {
-  constructor(chartsContainer, chartInput) {
+  constructor(container, chartInput) {
     this.intervalTimerId = null;
     this.position = 0;
     this.cycleNumber = 1;
     this.columnsArray = [];
     this.arraySortMap = [];
-    this.chartInput = chartInput;
-
-    this.chartContainer = this.#createDiv("chartContainer", chartsContainer);
+    this.chartInput = null;
+    this.startValue = chartInput;
+    this.chartContainer = this.#createDiv("chartContainer", container);
     this.buttonCreate = this.#createButton("Построить график");
     this.buttonSortBack = this.#createButton("Сортировать назад");
     this.buttonSortForward = this.#createButton("Сортировать вперед");
-    this.buttonRemove = this.#createButton("Remove");
-    this.buttonRemove.disabled = false;
     this.columnsContainer = this.#createDiv("container", this.chartContainer);
-
-    this.chartInput.addEventListener("input", () => this.#validation());
     this.buttonCreate.addEventListener("click", () => this.#createChart());
     this.buttonSortForward.addEventListener("click", () =>
       this.#sortChartForward()
     );
     this.buttonSortBack.addEventListener("click", () => this.#sortChartBack());
-    this.buttonRemove.addEventListener("click", () => this.#removeChart());
+
+    container.addEventListener("click", () => this.#selectChart(event));
+
     this.#createChart();
+  }
+  #selectChart(event) {
+    const closestContainer = event.target.closest(".chartContainer");
+    const isNativeContainer = closestContainer !== this.chartContainer;
+    if (!this.chartInput && isNativeContainer) return;
+
+    if (this.chartInput && isNativeContainer) {
+      this.startValue = this.chartInput.value;
+      this.chartInput.remove();
+      this.chartInput = null;
+      this.chartContainer.classList.remove("selectedNode");
+      return;
+    }
+    if (this.chartInput) return;
+    this.chartContainer.classList.add("selectedNode");
+    this.chartInput = document.createElement("input");
+    this.chartInput.setAttribute("type", "text");
+    this.chartContainer.appendChild(this.chartInput);
+    this.chartInput.value = this.startValue;
+
+    this.chartInput.addEventListener("input", () => this.#validation());
   }
 
   #printColumns(array) {
@@ -154,7 +173,9 @@ class Chart {
   }
 
   #getValidArray() {
-    const arrayNumb = this.chartInput.value.split(" ").filter(function (val) {
+    if (this.chartInput) this.startValue = this.chartInput.value;
+
+    const arrayNumb = this.startValue.split(" ").filter(function (val) {
       if (val !== " " && isFinite(Number(val))) {
         return val;
       }
@@ -186,13 +207,9 @@ class Chart {
     container.appendChild(newDiv);
     return newDiv;
   }
-
-  #removeChart() {
-    this.chartContainer.remove();
-  }
 }
 
 createNewChartBtn.addEventListener(
   "click",
-  () => new Chart(chartsContainer, chartInput)
+  () => new Chart(chartsContainer, chartInput.value)
 );
