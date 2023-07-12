@@ -5,6 +5,7 @@
     height: 160px;
     background-color: aquamarine;
     overflow : auto;
+    
 }
 .column {
     position: absolute; 
@@ -28,7 +29,9 @@
     padding: 20px 0px 20px 0px;
 }
 .selectedNode{
-    border: 2px solid black;
+    width: 600px;
+    border-radius: 5px;
+    border: 2px solid red;
 }
 
 
