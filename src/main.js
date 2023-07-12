@@ -1,26 +1,25 @@
 const MINIMUM_HEIGHT = 20;
 const ANIMATION_INTERVAL = 500;
+
 const createNewChartBtn = document.getElementById("createNewChart");
-createNewChartBtn.addEventListener("click", () => new Chart("chartsContainer"));
+const chartInput = document.querySelector(".сhartInp");
+const chartsContainer = document.getElementById("chartsContainer");
 
 class Chart {
-  constructor(idContainer) {
+  constructor(chartsContainer, chartInput) {
     this.intervalTimerId = null;
     this.position = 0;
     this.cycleNumber = 1;
     this.columnsArray = [];
     this.arraySortMap = [];
-    this.chartInput = document.querySelector(".сhartInp");
-    const chartsContainer = document.getElementById(idContainer);
+    this.chartInput = chartInput;
 
     this.chartContainer = this.#createDiv("chartContainer", chartsContainer);
-
     this.buttonCreate = this.#createButton("Построить график");
     this.buttonSortBack = this.#createButton("Сортировать назад");
     this.buttonSortForward = this.#createButton("Сортировать вперед");
     this.buttonRemove = this.#createButton("Remove");
     this.buttonRemove.disabled = false;
-
     this.columnsContainer = this.#createDiv("container", this.chartContainer);
 
     this.chartInput.addEventListener("input", () => this.#validation());
@@ -30,20 +29,7 @@ class Chart {
     );
     this.buttonSortBack.addEventListener("click", () => this.#sortChartBack());
     this.buttonRemove.addEventListener("click", () => this.#removeChart());
-
     this.#createChart();
-  }
-
-  #createChart() {
-    if (this.columnsContainer.length !== 0) {
-      this.#clearHistory();
-    }
-
-    const validArray = this.#getValidArray();
-    this.#printColumns(validArray);
-    this.#getColumnsArray();
-
-    if (validArray.length > 1) this.#showBtnSort(true);
   }
 
   #printColumns(array) {
@@ -65,6 +51,18 @@ class Chart {
     }
   }
 
+  #createChart() {
+    if (this.columnsContainer.length !== 0) {
+      this.#clearHistory();
+    }
+
+    const validArray = this.#getValidArray();
+    this.#printColumns(validArray);
+    this.#getColumnsArray();
+
+    if (validArray.length > 1) this.#showBtnSort(true);
+  }
+
   #sortChartBack() {
     if (this.position === 0 && this.cycleNumber === 1) return;
 
@@ -73,7 +71,6 @@ class Chart {
       this.position = lastNumberForSort;
       this.cycleNumber = this.cycleNumber - 1;
     }
-
     this.#replaceElements(-1);
     this.position = this.position - 1;
   }
@@ -140,6 +137,7 @@ class Chart {
 
   #clearHistory() {
     this.#showBtnSort(false);
+    this.#showBtnCreate(false);
     this.#printColumns([]);
     this.arraySortMap = [];
     this.position = 0;
@@ -148,11 +146,11 @@ class Chart {
   }
 
   #validation() {
-    const array = this.#getValidArray();
+    const arrayNumbers = this.#getValidArray();
 
-    if (array.length > 0) this.#showBtnCreate(true);
-    if (array.length == 0) this.#clearHistory();
-    if (array.length == 1) this.#showBtnSort(false);
+    if (arrayNumbers.length > 0) this.#showBtnCreate(true);
+    if (arrayNumbers.length == 0) this.#clearHistory();
+    if (arrayNumbers.length == 1) this.#showBtnSort(false);
   }
 
   #getValidArray() {
@@ -173,25 +171,28 @@ class Chart {
     this.buttonSortBack.disabled = !isShow;
   }
 
-  #createButton(text) {
+  #createButton(textButton) {
     const newButton = document.createElement("button");
     newButton.setAttribute("disabled", "true");
-    const buttonText = document.createTextNode(text);
-    newButton.appendChild(buttonText);
+    const textNode = document.createTextNode(textButton);
+    newButton.appendChild(textNode);
     this.chartContainer.appendChild(newButton);
-
     return newButton;
   }
 
   #createDiv(className, container) {
-    const div = document.createElement("div");
-    div.classList.add(className);
-    container.appendChild(div);
-
-    return div;
+    const newDiv = document.createElement("div");
+    newDiv.classList.add(className);
+    container.appendChild(newDiv);
+    return newDiv;
   }
 
   #removeChart() {
     this.chartContainer.remove();
   }
 }
+
+createNewChartBtn.addEventListener(
+  "click",
+  () => new Chart(chartsContainer, chartInput)
+);
