@@ -6,14 +6,14 @@ const chartInput = document.querySelector(".сhartInp");
 const chartsContainer = document.getElementById("chartsContainer");
 
 class Chart {
-  constructor(container, chartInput) {
+  constructor(container, numbersLine) {
     this.intervalTimerId = null;
     this.position = 0;
     this.cycleNumber = 1;
     this.columnsArray = [];
     this.arraySortMap = [];
     this.chartInput = null;
-    this.startValue = chartInput;
+    this.startValue = numbersLine;
     this.chartContainer = this.#createDiv("chartContainer", container);
     this.buttonCreate = this.#createButton("Построить график");
     this.buttonSortBack = this.#createButton("Сортировать назад");
