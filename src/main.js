@@ -31,10 +31,10 @@ class Chart {
   }
   #selectChart(event) {
     const closestContainer = event.target.closest(".chartContainer");
-    const isNativeContainer = closestContainer !== this.chartContainer;
-    if (!this.chartInput && isNativeContainer) return;
+    const isNativeContainer = closestContainer === this.chartContainer;
+    if (!this.chartInput && !isNativeContainer) return;
 
-    if (this.chartInput && isNativeContainer) {
+    if (this.chartInput && !isNativeContainer) {
       this.startValue = this.chartInput.value;
       this.chartInput.remove();
       this.chartInput = null;
