@@ -6,24 +6,20 @@ const chartInput = document.querySelector(".сhartInp");
 const chartsContainer = document.getElementById("chartsContainer");
 
 class Chart {
-  constructor(chartsContainer, chartInput) {
+  constructor(chartsContainer, lineNumbers) {
     this.intervalTimerId = null;
     this.position = 0;
     this.cycleNumber = 1;
     this.columnsArray = [];
     this.arraySortMap = [];
-    this.chartInput = chartInput;
+    this.lineNumbers = lineNumbers;
 
     this.chartContainer = this.#createDiv("chartContainer", chartsContainer);
-    this.buttonCreate = this.#createButton("Построить график");
     this.buttonSortBack = this.#createButton("Сортировать назад");
     this.buttonSortForward = this.#createButton("Сортировать вперед");
     this.buttonRemove = this.#createButton("Remove");
-    this.buttonRemove.disabled = false;
     this.columnsContainer = this.#createDiv("container", this.chartContainer);
 
-    this.chartInput.addEventListener("input", () => this.#validation());
-    this.buttonCreate.addEventListener("click", () => this.#createChart());
     this.buttonSortForward.addEventListener("click", () =>
       this.#sortChartForward()
     );
@@ -52,15 +48,9 @@ class Chart {
   }
 
   #createChart() {
-    if (this.columnsContainer.length !== 0) {
-      this.#clearHistory();
-    }
-
     const validArray = this.#getValidArray();
     this.#printColumns(validArray);
     this.#getColumnsArray();
-
-    if (validArray.length > 1) this.#showBtnSort(true);
   }
 
   #sortChartBack() {
@@ -135,26 +125,8 @@ class Chart {
     this.columnsArray = Array.from(columnsList);
   }
 
-  #clearHistory() {
-    this.#showBtnSort(false);
-    this.#showBtnCreate(false);
-    this.#printColumns([]);
-    this.arraySortMap = [];
-    this.position = 0;
-    this.cycleNumber = 1;
-    clearTimeout(this.intervalTimerId);
-  }
-
-  #validation() {
-    const arrayNumbers = this.#getValidArray();
-
-    if (arrayNumbers.length > 0) this.#showBtnCreate(true);
-    if (arrayNumbers.length == 0) this.#clearHistory();
-    if (arrayNumbers.length == 1) this.#showBtnSort(false);
-  }
-
   #getValidArray() {
-    const arrayNumb = this.chartInput.value.split(" ").filter(function (val) {
+    const arrayNumb = this.lineNumbers.split(" ").filter(function (val) {
       if (val !== " " && isFinite(Number(val))) {
         return val;
       }
@@ -162,18 +134,8 @@ class Chart {
     return arrayNumb.map((string) => Number(string));
   }
 
-  #showBtnCreate(isOpen) {
-    this.buttonCreate.disabled = !isOpen;
-  }
-
-  #showBtnSort(isShow) {
-    this.buttonSortForward.disabled = !isShow;
-    this.buttonSortBack.disabled = !isShow;
-  }
-
   #createButton(textButton) {
     const newButton = document.createElement("button");
-    newButton.setAttribute("disabled", "true");
     const textNode = document.createTextNode(textButton);
     newButton.appendChild(textNode);
     this.chartContainer.appendChild(newButton);
@@ -188,11 +150,12 @@ class Chart {
   }
 
   #removeChart() {
+    clearTimeout(this.intervalTimerId);
     this.chartContainer.remove();
   }
 }
 
 createNewChartBtn.addEventListener(
   "click",
-  () => new Chart(chartsContainer, chartInput)
+  () => new Chart(chartsContainer, chartInput.value)
 );
