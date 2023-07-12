@@ -6,7 +6,7 @@ const chartInput = document.querySelector(".сhartInp");
 const chartsContainer = document.getElementById("chartsContainer");
 
 class Chart {
-  constructor(chartsContainer, lineNumbers) {
+  constructor(container, lineNumbers) {
     this.intervalTimerId = null;
     this.position = 0;
     this.cycleNumber = 1;
@@ -14,7 +14,7 @@ class Chart {
     this.arraySortMap = [];
     this.lineNumbers = lineNumbers;
 
-    this.chartContainer = this.#createDiv("chartContainer", chartsContainer);
+    this.chartContainer = this.#createDiv("chartContainer", container);
     this.buttonSortBack = this.#createButton("Сортировать назад");
     this.buttonSortForward = this.#createButton("Сортировать вперед");
     this.buttonRemove = this.#createButton("Remove");
